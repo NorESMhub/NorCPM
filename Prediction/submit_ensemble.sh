@@ -158,7 +158,7 @@ do
 
     echo +++ SET CONTINUE_RUN, STOP_OPTION AND STOP_N
     ENSEMBLE_PREFIX=${PREFIX}_\${START_YEAR}\${START_MONTH}\${START_DAY} 
-    for MEMBER in \`seq -w 01 $NMEMBER\`
+    for MEMBER in \`seq -w 001 $NMEMBER\`
     do 
       CASE=\${ENSEMBLE_PREFIX}_${MEMBERTAG}\$MEMBER
       cd $CASESROOT/\${ENSEMBLE_PREFIX}/\${CASE}
@@ -184,7 +184,7 @@ do
     done 
 
     echo +++ LAUNCH FIRST MEMBER 
-    CASE=\${ENSEMBLE_PREFIX}_${MEMBERTAG}01 
+    CASE=\${ENSEMBLE_PREFIX}_${MEMBERTAG}001 
     cd $CASESROOT/\${ENSEMBLE_PREFIX}/\${CASE} 
     if [ `echo $MACH | cut -d_ -f1` == "hexagon" ] 
     then 

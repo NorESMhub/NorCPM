@@ -14,10 +14,10 @@ then
 fi
 . $1
 
-MEM01=${MEMBER1:-001}
+MEM001=${MEMBER1:-001}
 echo + CHECK THAT TEMPLATE CASE EXISTS
 ENSEMBLE_PREFIX1=${ENSEMBLE_PREFIX:-${PREFIX}_${START_YEAR1}${START_MONTH1}${START_DAY1}} 
-CASE1=${ENSEMBLE_PREFIX1}_${MEMBERTAG}${MEM01}
+CASE1=${ENSEMBLE_PREFIX1}_${MEMBERTAG}${MEM001}
 if [ ! -e $CASESROOT/${ENSEMBLE_PREFIX1}/${CASE1} ]
 then
   echo Template case $CASE1 does not exist. Please use create_template.sh to create.  
@@ -31,7 +31,7 @@ for START_MONTH in $START_MONTHS
 do
 for START_DAY in $START_DAYS
 do
-for MEMBER in `seq -w $MEM01 $(($MEM01+$NMEMBER-1))`
+for MEMBER in `seq -w $MEM001 $(($MEM001+$NMEMBER-1))`
 do
 
   echo ++ pick reference date
@@ -182,8 +182,8 @@ do
         exit
       fi
     fi
-    sed -i "s%${REST_PREFIX}${MEM01}.cice.r.${REF_YEAR1}-${REF_MONTH1}-${REF_DAY1}%${REST_PREFIX}${REF_MEMBER}.cice.r.${REF_YEAR}-${REF_MONTH}-${REF_DAY}%" Buildconf/cice.buildnml.csh
-    sed -i "s%${REST_PREFIX}${MEM01}.clm2.r.${REF_YEAR1}-${REF_MONTH1}-${REF_DAY1}%${REST_PREFIX}${REF_MEMBER}.clm2.r.${REF_YEAR}-${REF_MONTH}-${REF_DAY}%" Buildconf/clm.buildnml.csh
+    sed -i "s%${REST_PREFIX}${MEM001}.cice.r.${REF_YEAR1}-${REF_MONTH1}-${REF_DAY1}%${REST_PREFIX}${REF_MEMBER}.cice.r.${REF_YEAR}-${REF_MONTH}-${REF_DAY}%" Buildconf/cice.buildnml.csh
+    sed -i "s%${REST_PREFIX}${MEM001}.clm2.r.${REF_YEAR1}-${REF_MONTH1}-${REF_DAY1}%${REST_PREFIX}${REF_MEMBER}.clm2.r.${REF_YEAR}-${REF_MONTH}-${REF_DAY}%" Buildconf/clm.buildnml.csh
     #Fanf: typically ifile does not have the same date than restart file
     ifile=$(basename `find $REST_PATH/ -name '*cam2.i*'`)
     if [ "$CESMVERSION" == '2' ];then
@@ -199,14 +199,14 @@ do
       REST_PATH="$REST_PATH_LOCAL/${REST_PREFIX}${MEMBER}/rest/${START_YEAR1}-${START_MONTH1}-${START_DAY1}-00000"
   fi
     if [ "$CESMVERSION" == '2' ];then  
-        #sed -i "s%${ENSEMBLE_PREFIX1}/${CASE1}/run/${REST_PREFIX}${MEM01}.cam2.r.${START_YEAR1}-${START_MONTH1}-${START_DAY1}%${ENSEMBLE_PREFIX}/${CASE}/run/${REST_PREFIX}${MEMBER}.cam2.r.${START_YEAR}-${START_MONTH}-${START_DAY}%" Buildconf/cam.buildnml.csh 
-        ##sed -i "s%${REST_PREFIX}${MEM01}.cice.r.${START_YEAR1}-${START_MONTH1}-${START_DAY1}%${REST_PREFIX}${MEMBER}.cice.r.${START_YEAR}-${START_MONTH}-${START_DAY}%" Buildconf/cice.buildnml.csh
-        ##sed -i "s%${REST_PREFIX}${MEM01}.clm2.r.${START_YEAR1}-${START_MONTH1}-${START_DAY1}%${REST_PREFIX}${MEMBER}.clm2.r.${START_YEAR}-${START_MONTH}-${START_DAY}%" Buildconf/clm.buildnml.csh
+        #sed -i "s%${ENSEMBLE_PREFIX1}/${CASE1}/run/${REST_PREFIX}${MEM001}.cam2.r.${START_YEAR1}-${START_MONTH1}-${START_DAY1}%${ENSEMBLE_PREFIX}/${CASE}/run/${REST_PREFIX}${MEMBER}.cam2.r.${START_YEAR}-${START_MONTH}-${START_DAY}%" Buildconf/cam.buildnml.csh 
+        ##sed -i "s%${REST_PREFIX}${MEM001}.cice.r.${START_YEAR1}-${START_MONTH1}-${START_DAY1}%${REST_PREFIX}${MEMBER}.cice.r.${START_YEAR}-${START_MONTH}-${START_DAY}%" Buildconf/cice.buildnml.csh
+        ##sed -i "s%${REST_PREFIX}${MEM001}.clm2.r.${START_YEAR1}-${START_MONTH1}-${START_DAY1}%${REST_PREFIX}${MEMBER}.clm2.r.${START_YEAR}-${START_MONTH}-${START_DAY}%" Buildconf/clm.buildnml.csh
         echo pass for NorESM2
     else
-        sed -i "s%${ENSEMBLE_PREFIX1}/${CASE1}/run/${REST_PREFIX}${MEM01}.cam2.r.${START_YEAR1}-${START_MONTH1}-${START_DAY1}%${ENSEMBLE_PREFIX}/${CASE}/run/${REST_PREFIX}${MEMBER}.cam2.r.${START_YEAR}-${START_MONTH}-${START_DAY}%" Buildconf/cam.buildnml.csh 
-        sed -i "s%${REST_PREFIX}${MEM01}.cice.r.${START_YEAR1}-${START_MONTH1}-${START_DAY1}%${REST_PREFIX}${MEMBER}.cice.r.${START_YEAR}-${START_MONTH}-${START_DAY}%" Buildconf/cice.buildnml.csh
-        sed -i "s%${REST_PREFIX}${MEM01}.clm2.r.${START_YEAR1}-${START_MONTH1}-${START_DAY1}%${REST_PREFIX}${MEMBER}.clm2.r.${START_YEAR}-${START_MONTH}-${START_DAY}%" Buildconf/clm.buildnml.csh
+        sed -i "s%${ENSEMBLE_PREFIX1}/${CASE1}/run/${REST_PREFIX}${MEM001}.cam2.r.${START_YEAR1}-${START_MONTH1}-${START_DAY1}%${ENSEMBLE_PREFIX}/${CASE}/run/${REST_PREFIX}${MEMBER}.cam2.r.${START_YEAR}-${START_MONTH}-${START_DAY}%" Buildconf/cam.buildnml.csh 
+        sed -i "s%${REST_PREFIX}${MEM001}.cice.r.${START_YEAR1}-${START_MONTH1}-${START_DAY1}%${REST_PREFIX}${MEMBER}.cice.r.${START_YEAR}-${START_MONTH}-${START_DAY}%" Buildconf/cice.buildnml.csh
+        sed -i "s%${REST_PREFIX}${MEM001}.clm2.r.${START_YEAR1}-${START_MONTH1}-${START_DAY1}%${REST_PREFIX}${MEMBER}.clm2.r.${START_YEAR}-${START_MONTH}-${START_DAY}%" Buildconf/clm.buildnml.csh
     fi
     #IB: why is this line here?  $REST_PATH_LOCAL/${REST_PREFIX}${MEMBER}/${START_YEAR}-${START_MONTH}-${START_DAY}-00000/
   fi 

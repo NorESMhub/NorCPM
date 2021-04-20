@@ -101,7 +101,7 @@ PRECASESETUP=$PRECASESETUP"; cp ${SCRIPTDIR}/../SourceMods.noresm2/src.drv/cime_
 
 ### clm patch for branch run
 patchfile="${CCSMROOT}/components/clm/src/main/controlMod.F90"
-if [ -f "$patchfile" ] && [ ! -z $(grep 'ERROR: Can only set use_init_interp if finidat is set' "${patchfile}") ] ; then
+if [ -f "$patchfile" ] && [ ! -z "$(grep 'ERROR: Can only set use_init_interp if finidat is set' ${patchfile})" ] ; then
     PRECASESETUP=$PRECASESETUP"; cp ${SCRIPTDIR}/../SourceMods.noresm2/src.clm/controlMod.F90 ./SourceMods/src.clm/"
                             ## Patch of https://github.com/ESCOMP/ctsm/issues/786
                             ## Which is necessary for branch run
