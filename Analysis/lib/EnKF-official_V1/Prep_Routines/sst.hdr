@@ -1,0 +1,5 @@
+sst ! Reynolds
+reg             ! reg | irr (regular grid or           irregular data points?)
+(2f8.1,f9.3)    ! Data file format                     (lat lon data)
+ 999.9 1.00 0.25 ! undef,            scale, error variance (testing medium values)
+140 140 -99.50 -59.50 1.00 1.00 ! nx ny lon0           lat0 dlon dlat

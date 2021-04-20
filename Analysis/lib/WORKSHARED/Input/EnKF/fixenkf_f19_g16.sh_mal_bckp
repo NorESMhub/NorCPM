@@ -1,0 +1,16 @@
+#!/bin/bash
+#PBS -S /bin/sh
+#PBS -N "fixenkf"
+#PBS -A nn9039k
+#PBS -l walltime=01:50:00,mppwidth=128
+#PBS -o fixenkf.out
+#PBS -e fixenkf.err
+cd ${WORKDIR}/ANALYSIS/
+for MEM in `seq -w 1 NENS`
+do
+      aprun -n 4 micom_serial_init $MEM   &
+      sleep 5
+done
+wait
+touch FINITO
+sleep 15

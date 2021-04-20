@@ -1,0 +1,20 @@
+#!/bin/bash
+#PBS -S /bin/sh
+#PBS -N "fixenkf"
+#PBS -A nn9039k
+#PBS -q batch
+#PBS -l mppwidth=32
+#PBS -l mppnppn=16
+#PBS -l mppmem=2000MB
+#PBS -l walltime=00:10:00
+#PBS -o fixenkf.out
+#PBS -e fixenkf.err
+
+
+cd ${WORKDIR}/ANALYSIS/
+for i in `seq -w 01 NENS`
+do
+   aprun -n 1 -m 1000M ./micom_serial_init $i &
+done
+touch FINITO
+echo ' fixenkf completed' 

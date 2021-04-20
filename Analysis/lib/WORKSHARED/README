@@ -1,0 +1,18 @@
+/cluster/shared/noresm/norcpm
+
+       ${WORKSHARED}/bin/ensave .
+
+    Anomaly:
+       ${WORKSHARED}/bin/prep_obs_anom_V${EnKF_Version} prep_obs
+       ${WORKSHARED}/bin/EnKF_${grid_type}_anom_V${EnKF_Version} EnKF
+       ${WORKSHARED}/Input/NorESM/${RES}/Anom-cpl-average${mm}-${REF_PERIOD}.nc mean_mod.nc 
+       ${WORKSHARED}/Input/NorESM/${RES}/Anom-cpl-average${REF_PERIOD}.nc mean_mod.nc
+
+    FullField:
+       ${WORKSHARED}/bin/prep_obs_ff_V${EnKF_Version} prep_obs
+       ${WORKSHARED}/bin/EnKF_${grid_type}_ff_V${EnKF_Version} EnKF
+
+       ${WORKSHARED}/Input/EnKF/analysisfields_V${EnKF_Version}_${EnKF_CNT}.in analysisfields.in
+       ${WORKSHARED}/bin/micom_ensemble_init_${RES} micom_ensemble_init
+       ${WORKSHARED}/bin/fixenkf_cice_${RES} fixenkf_cice
+       ${WORKSHARED}/bin/ensave_ice ensave_ice

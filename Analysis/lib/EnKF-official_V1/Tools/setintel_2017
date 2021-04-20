@@ -1,0 +1,4 @@
+module --force purge
+module load StdEnv
+module load intel/2017b
+module load netCDF-Fortran/4.4.4-intel-2017b-HDF5-1.8.19

@@ -1,0 +1,12 @@
+/.ignore
+analysis/setting/MLS_*_seeting.sh
+*.sw?
+porting
+cases
+TMP
+*.o
+.svn
+*.mod
+*/build/*
+models
+bin

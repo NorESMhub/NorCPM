@@ -1,0 +1,16 @@
+cd /cluster/work/users/${USER}/noresm/C.A.S.E.D.I.R/ANALYSIS/
+#for i in `seq -w 01 NENS`
+#do
+#   aprun -n 48 ./micom_serial_init $i   &
+#   sleep 1
+#done
+#TODO FC this is not optimal, we could do the two in parallel but need to make sure I/O netcdf ok with that 
+#wait
+for i in `seq -w 01 NENS`
+do
+   mpirun -n 1 ./fixenkf_cice $i 
+   #sleep 1
+done
+#wait
+touch FINITO
+echo ' fixenkf completed' 

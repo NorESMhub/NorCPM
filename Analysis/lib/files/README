@@ -1,0 +1,4 @@
+Sample: Fram:/cluster/shared/noresm/norcpm//Input/NorESM/f19_tn11/
+
+mean_mod.nc Sep. example:
+    ncea -v depth_bnds,sigmx,sealv,fice,mld,maxmld,sst,sss,templvl,salnlvl  bccr-fast_historical_18500101_mem*.micom.hm.{1950..2009}-09.nc  Free-average09-1950-2009.nc

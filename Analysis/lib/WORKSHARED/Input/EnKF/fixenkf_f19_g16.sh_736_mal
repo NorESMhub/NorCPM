@@ -1,0 +1,21 @@
+#!/bin/bash
+#PBS -S /bin/sh
+#PBS -N "fixenkf"
+#PBS -A nn9039k
+#PBS -l walltime=00:18:00,mppwidth=736
+#PBS -o fixenkf.out
+#PBS -e fixenkf.err
+cd /work/${USER}/noresm/C.A.S.E.D.I.R/ANALYSIS/
+cnt=1
+for PAK in `seq -w 1 2`
+do
+   for SUBPAK in `seq -w 1 15`
+   do
+      aprun -n 48 micom_serial_init $cnt   &
+      sleep 1
+      let cnt=cnt+1
+   done
+   wait
+done
+touch FINITO
+echo ' fixenkf completed' 
