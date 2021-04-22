@@ -29,7 +29,8 @@ WORK=/cluster/work/users/$USER
 CASESROOT=$WORK/norcpm_cases
 EXESROOT=$WORK/noresm/
 ARCHIVESROOT=$WORK/archive
-CCSMROOT=$HOME/NorESM
+## Set CCSMROOT to ../.. of Prediction/
+CCSMROOT=$(readlink -f $(dirname $(readlink -f $0))/../..)
 
 ### Case settings
 PREFIX='Casename'

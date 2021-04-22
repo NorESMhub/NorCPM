@@ -71,7 +71,8 @@ if [ $CESMVERSION == '2' ]; then   ## much differences in CESM2
     ## submit case.st_archive of other members
     echo ++ Submit st_archive of other members
     for i in $(seq -w $(($MEM001 +1)) $(($MEM001+$NMEMBER-1))) ; do
-        cd "${CASESROOT}/${ENSEMBLE_PREFIX1}/${ENSEMBLE_PREFIX1}_${MEMBERTAG}${i}"
+        ii=$(printf "%3.3d" ${i})
+        cd "${CASESROOT}/${ENSEMBLE_PREFIX1}/${ENSEMBLE_PREFIX1}_${MEMBERTAG}${ii}"
         ./xmlchange RESUBMIT=0
         ./case.submit --job case.st_archive --prereq ${jobid}
     done
