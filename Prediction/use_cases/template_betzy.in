@@ -34,7 +34,7 @@ CCSMROOT=$(readlink -f $(dirname $(readlink -f $0))/../..)
 
 ### Case settings
 PREFIX='Casename'
-ENSEMBLE_PREFIX=   ## leave it empty will be ${PREFIX}_${START_YEAR}${START_MONTH}${START_DAY}
+ENSEMBLE_PREFIX=${PREFIX}   ## leave it empty will be ${PREFIX}_${START_YEAR}${START_MONTH}${START_DAY}
 START_YEARS='1980'
 START_MONTHS='01'
 START_DAYS='01'
