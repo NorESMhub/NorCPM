@@ -615,7 +615,7 @@ contains
     call mpi_comm_size(global_comm,mppwidth,ierr)
     call getenv("MEMBER_PES",envtmp)  !! need be set in env_mach_specific.xml
     read(envtmp,*,iostat=ierr)npes    !! if MEMBER_PES not set, npes is 0
-    if (mppwidth.ge.2*npes) then      !! if npes is 0, then the NorCPM setup will be skipped
+    if (npes.gt.0 .and. mppwidth.ge.2*npes) then      !! if npes is 0, then the NorCPM setup will be skipped
      call mpi_comm_rank(global_comm,myid,ierr)
      !--- check that mppwidth is multiple of pes needed for single member ---
      if (mod(mppwidth,npes).ne.0) then
