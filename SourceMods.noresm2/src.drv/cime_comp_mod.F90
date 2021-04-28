@@ -600,11 +600,10 @@ contains
     integer :: driver_id
     integer :: driver_comm
     !--- NorCPM modify, declares
-        integer :: mppwidth,npes,mem,myid,mynewid,mem1  
-        integer :: new_comm ,rank_local,comm_enscomp
-        integer :: commsize
-        character(len=255) :: rundir,envtmp
-
+    integer :: mppwidth,npes=0,mem,myid,mynewid,mem1  
+    integer :: new_comm ,rank_local,comm_enscomp
+    integer :: commsize
+    character(len=255) :: rundir='',envtmp=''
     !--- NorCPM modify end
 
     call mpi_init(ierr)
@@ -613,38 +612,37 @@ contains
     call shr_mpi_chkerr(ierr,subname//' mpi_comm_dup')
 
     !--- NorCPM modify, run other ensemble members at once
-    !! need be revised, declare variables, getenv of mppwidth and npes
-        !!call getenv("SLURM_NTASKS",envtmp) !! It is not called mppwidth in slurm, maybe it is SLURM_NTASKS
-        !!read(envtmp,*)mppwidth 
-        call mpi_comm_size(global_comm,mppwidth,ierr)
-        call getenv("MEMBER_PES",envtmp)  !! need be set in env_mach_specific.xml
-        read(envtmp,*)npes
-        call mpi_comm_rank(global_comm,myid,ierr)
-        if (mppwidth.ge.2*npes) then
-         !--- check that mppwidth is multiple of pes needed for single member ---
-         if (mod(mppwidth,npes).ne.0) then
-           write(*,*) 'mppwidth=',mppwidth,' must be multiple of ',npes
-           stop
-         endif
-         !--- determine member id ---
-         mem=myid/npes
-         !--- change run directory ---
-         call getcwd(rundir)  !! should be CASENAME_mem003/run
-         read(rundir(LEN_TRIM(rundir)-6:LEN_TRIM(rundir)-4),'(i3.3)') mem1
-         write(rundir(LEN_TRIM(rundir)-6:LEN_TRIM(rundir)-4),'(i3.3)') mod(mem+mem1,1000)
-         if (mem.gt.0) then
-           write(*,*) 'INFO: member ',mod(mem+mem1,1000),', change run-dir to',trim(rundir)
-           call chdir(TRIM(rundir))
-         endif
-         !--- create intra-member communicator ---
-         mynewid = mod(myid,npes)  !! need check
-         !print*, "myid/mynewid",myid,mynewid
-         call mpi_comm_split(mpi_comm_world,mem,mynewid,new_comm,ierr) !! myid should be changed to id of new_comm
-         global_comm=new_comm  ! replace global_comm
-         !--- create inter-member communicator ---
-         rank_local=myid-mem*npes
-         call mpi_comm_split(mpi_comm_world,rank_local,myid,comm_enscomp,ierr) !! myid should be changed to id of new_comm
-        endif
+    call mpi_comm_size(global_comm,mppwidth,ierr)
+    call getenv("MEMBER_PES",envtmp)  !! need be set in env_mach_specific.xml
+    read(envtmp,*,iostat=ierr)npes    !! if MEMBER_PES not set, npes is 0
+    if (mppwidth.ge.2*npes) then      !! if npes is 0, then the NorCPM setup will be skipped
+     call mpi_comm_rank(global_comm,myid,ierr)
+     !--- check that mppwidth is multiple of pes needed for single member ---
+     if (mod(mppwidth,npes).ne.0) then
+       write(*,*) 'Total CPUs=',mppwidth,', MEMBER_PES=',npes
+       write(*,*) 'The total numbers of CPUs must be multiple of MEMBER_PES in env_mach_specific.xml'
+       write(*,*) 'ERROR, exit...'
+       stop
+     endif
+     !--- determine member id ---
+     mem=myid/npes
+     !--- change run directory ---
+     call getcwd(rundir)  !! should be like 'CASENAME_mem003/run'. 
+     read(rundir(LEN_TRIM(rundir)-7:LEN_TRIM(rundir)-4),'(i3.3)') mem1 !! read 1st member, maybe not 001
+     write(rundir(LEN_TRIM(rundir)-7:LEN_TRIM(rundir)-4),'(i3.3)') mod(mem+mem1,1000)
+     if (mem.gt.0) then
+       write(*,*) 'INFO: member ',mod(mem+mem1,1000),', change run-dir to',trim(rundir)
+       call chdir(TRIM(rundir))
+     endif
+     !--- create intra-member communicator ---
+     mynewid = mod(myid,npes)  !! need check
+     !print*, "myid/mynewid",myid,mynewid
+     call mpi_comm_split(mpi_comm_world,mem,mynewid,new_comm,ierr) !! myid should be changed to id of new_comm
+     global_comm=new_comm  ! replace global_comm
+     !--- create inter-member communicator ---
+     rank_local=myid-mem*npes
+     call mpi_comm_split(mpi_comm_world,rank_local,myid,comm_enscomp,ierr) !! myid should be changed to id of new_comm
+    endif
     !--- NorCPM modify end
 
     comp_comm = MPI_COMM_NULL
