@@ -44,6 +44,9 @@ A: These are program for data assimilation, can be found on Betzy or Fram at fol
    /cluster/shared/noresm/norcpm  
    If one is using NorCPM other than Betzy and Fram, or want to compile own version, see HOWTO-Compile.md
 
+Q: One or some of the members are crashed, the model time are not consist between members. What can I do?
+A: The quickest way is turn back the model time of success members. Copy the restart files (include rpointer.* ) to rundir of each member from archive directory.
+
 # Compiling the data assimilation code
 Q: Why and when I have to compile the data assimilation code by myself?
 A: You can use pre-build binaries if you want to run on Betzy or Fram. But you will need to build them if want to run it on other machine or build your own version. 
