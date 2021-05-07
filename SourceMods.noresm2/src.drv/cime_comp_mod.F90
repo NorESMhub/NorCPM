@@ -628,8 +628,8 @@ contains
      mem=myid/npes
      !--- change run directory ---
      call getcwd(rundir)  !! should be like 'CASENAME_mem003/run'. 
-     read(rundir(LEN_TRIM(rundir)-7:LEN_TRIM(rundir)-4),'(i3.3)') mem1 !! read 1st member, maybe not 001
-     write(rundir(LEN_TRIM(rundir)-7:LEN_TRIM(rundir)-4),'(i3.3)') mod(mem+mem1,1000)
+     read(rundir(LEN_TRIM(rundir)-6:LEN_TRIM(rundir)-4),'(i3.3)') mem1 !! read 1st member, maybe not 001
+     write(rundir(LEN_TRIM(rundir)-6:LEN_TRIM(rundir)-4),'(i3.3)') mod(mem+mem1,1000)
      if (mem.gt.0) then
        write(*,*) 'INFO: member ',mod(mem+mem1,1000),', change run-dir to',trim(rundir)
        call chdir(TRIM(rundir))

@@ -1,0 +1,9 @@
+.in
+    PREFIX (case name)
+    ACCOUNT
+    REST_PATH_LOCAL
+    REST_CASE
+
+Prediction/create_template.sh Prediction/use_cases/template_betzy.in &&\
+Prediction/create_ensemble.sh Prediction/use_cases/template_betzy.in &&\
+Prediction/submit_ensemble.sh Prediction/use_cases/template_betzy.in

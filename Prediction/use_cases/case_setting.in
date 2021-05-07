@@ -45,7 +45,7 @@ RESUBMIT=0
 WALLTIME='3-00:00:00'  
 NMEMBER=8 # number of prediction members 
 COMPSET=NHIST
-RES=f19_tn14
+RES=f19_tn14  ## resolution
 ACCOUNT=ACCOUNT ## project account
 
 ##### The NTASKS, ROOTPE setting here will override default setting.
@@ -67,12 +67,12 @@ MEMBER_PES=128  ## This value is the number of PE for each member.
 #####    ${REST_PATH_LOCAL}/${REST_PREFIX}002/rest/${START_YEARS}-00000/
 #####    ${REST_PATH_LOCAL}/${REST_PREFIX}003/rest/${START_YEARS}-00000/
 #####    ...
-REST_CASE=NHIST_f19_tn14_20190710_19700101
+REST_PATH_LOCAL=/cluster/home/$USER/work/restarts/cases
+REST_CASE=NHIST_f19_tn14_20190710_19700101  ## resolution must same as RES variable
 REST_PREFIX=${REST_CASE}_mem # reference prefix, including everything but member id
 RUN_REFCASE=
           ## Keep it empty if casename of restart files are $REST_CASE_mem001 (restart files are generated from NorCPM case)
           ## Or fill it with casename if restart files are pertubed from single case.
-REST_PATH_LOCAL=/cluster/home/$USER/work/restarts/cases
 
 
 
