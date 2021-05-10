@@ -97,8 +97,12 @@ SCRIPTDIR=$(dirname ${SCRIPTPATH})
 ### Commands use after create_case, before case.setup.
 PRECASESETUP="./xmlchange NTASKS=${NTASKS}; ./xmlchange NTASKS_OCN=${NTASKS_OCN}; ./xmlchange NTASKS_ESP=1; ./xmlchange ROOTPE=0"
 PRECASESETUP=$PRECASESETUP"; sed -i -e'/<\/environment_variables>/i\ \ \ \ <env\ name=\"MEMBER_PES\">${MEMBER_PES}<\/env>' env_mach_specific.xml"
-PRECASESETUP=$PRECASESETUP"; cp ${SCRIPTDIR}/../SourceMods.noresm2/src.drv/cime_comp_mod.F90 ./SourceMods/src.drv/"
-                            ## cp NorCPM/SourceMods.noresm2/cime_comp_mod.F90 to $CASE/SourceMods/src.drv/
+
+### NorCPM, run multiple members in one job
+patchfile="${CCSMROOT}/cime/src/drivers/mct/main/cime_comp_mod.F90"
+if [ -f "$patchfile" ] && [ ! -z "$(grep -i 'NorCPM' ${patchfile})" ] ; then
+    PRECASESETUP=$PRECASESETUP"; cp ${SCRIPTDIR}/../SourceMods.noresm2/src.drv/cime_comp_mod.F90 ./SourceMods/src.drv/"
+fi 
 
 ### clm patch for branch run
 patchfile="${CCSMROOT}/components/clm/src/main/controlMod.F90"
