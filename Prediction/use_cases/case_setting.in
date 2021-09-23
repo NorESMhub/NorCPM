@@ -122,5 +122,3 @@ PRECASESETUP001=" sed -i -e'/<group id=.case.run.>/a    <entry id=\"task_count\"
                             ## increase requested resource for all members, but need be 1 for case_st_archive
 PRECASESETUP001=$PRECASESETUP001"; ./xmlchange USER_REQUESTED_QUEUE=normal --subgroup=case.run"
                             #### force case.run use normal queue
-#PRECASESETUP001=$PRECASESETUP001"; ./xmlchange --subgroup case.st_archive template=template.st_archive_NorCPM_mem01"
-                            #### modified template.st_archive submit st_archive for all members
