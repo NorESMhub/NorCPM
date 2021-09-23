@@ -35,18 +35,18 @@ CCSMROOT=$(readlink -f $(dirname $(readlink -f $0))/../..)
 ### Case settings
 PREFIX='Casename'
 ENSEMBLE_PREFIX=${PREFIX}   ## leave it empty will be ${PREFIX}_${START_YEAR}${START_MONTH}${START_DAY}
-START_YEARS='1980'
+START_YEARS='1970'
 START_MONTHS='01'
 START_DAYS='01'
 STOP_OPTION=nday # units for run length specification STOP_N 
 STOP_N=14        # run continuesly for this length 
 RESTART=0        # restart this many times, but it does not work on Betzy
 RESUBMIT=0
-WALLTIME='3-00:00:00'  
+WALLTIME='72:00:00'  
 NMEMBER=8 # number of prediction members 
 COMPSET=NHIST
 RES=f19_tn14  ## resolution
-ACCOUNT=ACCOUNT ## project account
+ACCOUNT=nn9039k ## project account
 
 ##### The NTASKS, ROOTPE setting here will override default setting.
 ##### Change here and PRECASESETUP if any optimize.
@@ -67,10 +67,10 @@ MEMBER_PES=128  ## This value is the number of PE for each member.
 #####    ${REST_PATH_LOCAL}/${REST_PREFIX}002/rest/${START_YEARS}-00000/
 #####    ${REST_PATH_LOCAL}/${REST_PREFIX}003/rest/${START_YEARS}-00000/
 #####    ...
-REST_PATH_LOCAL=/cluster/home/$USER/work/restarts/cases
-REST_CASE=NHIST_f19_tn14_20190710_19700101  ## resolution must same as RES variable
+REST_PATH_LOCAL=/cluster/home/$USER/nn9039k/restarts/cases
+REST_CASE=NHIST_f19_tn14_20190710  ## resolution must same as RES variable
 REST_PREFIX=${REST_CASE}_mem # reference prefix, including everything but member id
-RUN_REFCASE=
+RUN_REFCASE=$REST_CASE
           ## Keep it empty if casename of restart files are $REST_CASE_mem001 (restart files are generated from NorCPM case)
           ## Or fill it with casename if restart files are pertubed from single case.
 
@@ -100,7 +100,7 @@ PRECASESETUP=$PRECASESETUP"; sed -i -e'/<\/environment_variables>/i\ \ \ \ <env\
 
 ### NorCPM, run multiple members in one job
 patchfile="${CCSMROOT}/cime/src/drivers/mct/main/cime_comp_mod.F90"
-if [ -f "$patchfile" ] && [ ! -z "$(grep -i 'NorCPM' ${patchfile})" ] ; then
+if [ -f "$patchfile" ] && [ -z "$(grep -i 'NorCPM' ${patchfile})" ] ; then
     PRECASESETUP=$PRECASESETUP"; cp ${SCRIPTDIR}/../SourceMods.noresm2/src.drv/cime_comp_mod.F90 ./SourceMods/src.drv/"
 fi 
 

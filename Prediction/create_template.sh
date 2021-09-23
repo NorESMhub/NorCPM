@@ -20,7 +20,8 @@ ENSEMBLE_PREFIX=${ENSEMBLE_PREFIX:-${PREFIX}_${START_YEAR1}${START_MONTH1}${STAR
 logfile=`basename $0`_${ENSEMBLE_PREFIX}.log
 CASE=${ENSEMBLE_PREFIX}_${MEMBERTAG}${MEMBER1:-001}
 CASEROOT=$CASESROOT/$ENSEMBLE_PREFIX/$CASE 
-EXEROOT=$EXESROOT/$ENSEMBLE_PREFIX/$CASE
+EXEROOT=$(echo $EXESROOT/$ENSEMBLE_PREFIX/$CASE | sed -e's://*:/:g') 
+    ## replace '//' with '/', which cause mct complie failed at cime5.8.32-Nor, do now know why
 RUNDIR=$EXEROOT/run   ## for consistant with create_ensemble.sh
 DOUT_S_ROOT=$ARCHIVESROOT/$ENSEMBLE_PREFIX/$CASE 
 for ITEM in $CASEROOT $EXEROOT $DOUT_S_ROOT 
@@ -45,8 +46,8 @@ mkdir -p $CASESROOT/$ENSEMBLE_PREFIX $EXESROOT/$ENSEMBLE_PREFIX $ARCHIVESROOT/$E
 
 echo + CREATE CASE1 CASE, logfile: ${logfile}
 if [ $CESMVERSION == '2' ]; then
-    echo $SCRIPTSROOT/create_newcase --case $CASEROOT --compset $COMPSET --res $RES --mach $MACH --project $ACCOUNT --run-unsupported
-    $SCRIPTSROOT/create_newcase --case $CASEROOT --compset $COMPSET --res $RES --mach $MACH --project $ACCOUNT --run-unsupported  >& ${logfile}
+    echo $SCRIPTSROOT/create_newcase --case $CASEROOT --compset $COMPSET --res $RES --mach $MACH --project $ACCOUNT 
+    $SCRIPTSROOT/create_newcase --case $CASEROOT --compset $COMPSET --res $RES --mach $MACH --project $ACCOUNT  >& ${logfile}
     #$SCRIPTSROOT/create_newcase --case $CASEROOT --compset $COMPSET --res $RES --mach $MACH --pecount $PECOUNT --project $ACCOUNT --run-unsupported -q short   ## for testing
 else
     $SCRIPTSROOT/create_newcase -case $CASEROOT -compset $COMPSET -res $RES -mach $MACH -pecount $PECOUNT
@@ -62,6 +63,7 @@ else
     ./xmlchange -file env_build.xml -id EXEROOT -val $EXEROOT 
     ./xmlchange -file env_run.xml -id DOUT_S_ROOT -val $DOUT_S_ROOT
 fi
+
 if [[ $RUN_TYPE && $RUN_TYPE == "hybrid" ]] 
 then 
 ## not changed for NorESM2 yet

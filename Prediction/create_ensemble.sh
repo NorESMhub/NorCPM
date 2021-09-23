@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh -ex
 
 echo "USAGE: ./`basename $0` <path to settings file>" 
 
@@ -72,7 +72,8 @@ do
  
   echo ++ REMOVE OLD CASE 
   CASEROOT=$CASESROOT/$ENSEMBLE_PREFIX/$CASE
-  EXEROOT=$EXESROOT/$ENSEMBLE_PREFIX/$CASE
+  EXEROOT=$(echo $EXESROOT/$ENSEMBLE_PREFIX/$CASE | sed -e's://*:/:g') 
+    ## replace '//' with '/', which cause mct complie failed at cime5.8.32-Nor, do now know why
   DOUT_S_ROOT=$ARCHIVESROOT/$ENSEMBLE_PREFIX/$CASE
   for ITEM in $CASEROOT $EXEROOT $DOUT_S_ROOT
   do
@@ -164,7 +165,7 @@ do
     fi
   fi 
   if [ "$CESMVERSION" == '2' ];then
-      ./case.setup
+      ./case.setup --reset
   else
       ./configure -case
   fi
