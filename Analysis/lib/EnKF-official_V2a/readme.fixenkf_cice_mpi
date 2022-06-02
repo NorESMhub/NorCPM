@@ -1,0 +1,36 @@
+## Open mask_ice.nc in same time will cause HDF error.
+## fix: set environment like following:
+##    export HDF5_USE_FILE_LOCKING="FALSE"
+
+##
+## diff of code
+## makefile: change to mpi version
+## Tools/p_fixenkf_cice_mpi.F90: change dp to cicedp, to avoid conflict to qmpi.F90
+##
+diff -r /cluster/projects/nn9039k/NorCPM/Code/EnKF-official_V2a/Tools/makefile Tools/makefile
+94c94,95
+< p_fixenkf_cice.o
+---
+> distribute.o\
+> p_fixenkf_cice_mpi.o
+diff -r /cluster/projects/nn9039k/NorCPM/Code/EnKF-official_V2a/Tools/p_fixenkf_cice_mpi.F90 Tools/p_fixenkf_cice_mpi.F90
+62c62
+<    real, allocatable, dimension(:,:,:,:)   :: temp,saln,sigma,dp
+---
+>    real, allocatable, dimension(:,:,:,:)   :: temp,saln,sigma,cicedp
+353c353
+<       allocate(dp (idm,jdm+1,kdm,1))
+---
+>       allocate(cicedp (idm,jdm+1,kdm,1))
+359c359
+<       allocate(dp (idm,jdm,kdm,1))
+---
+>       allocate(cicedp (idm,jdm,kdm,1))
+372c372
+<     call nfw_get_vara_double(trim(maskfile), ncid2, dp_ID, ns, nc, dp)
+---
+>     call nfw_get_vara_double(trim(maskfile), ncid2, dp_ID, ns, nc, cicedp)
+589c589
+<     call nfw_put_vara_double(trim(maskfile), ncid2, dp_ID, ns, nc, dp)
+---
+>     call nfw_put_vara_double(trim(maskfile), ncid2, dp_ID, ns, nc, cicedp)

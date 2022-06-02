@@ -1,0 +1,53 @@
+netcdf \1990_08 {
+dimensions:
+	x = 2 ;
+	longitude = 360 ;
+	latitude = 180 ;
+	time = 1 ;
+	nens = UNLIMITED ; // (10 currently)
+variables:
+	float longitude(longitude) ;
+		longitude:standard_name = "longitude" ;
+		longitude:long_name = "Longitude" ;
+		longitude:units = "degrees_east" ;
+		longitude:axis = "X" ;
+	float latitude(latitude) ;
+		latitude:standard_name = "latitude" ;
+		latitude:long_name = "Latitude" ;
+		latitude:units = "degrees_north" ;
+		latitude:axis = "Y" ;
+	double time(time) ;
+		time:standard_name = "time" ;
+		time:long_name = "Time" ;
+		time:units = "days since 1850-01-01 00:00:00" ;
+		time:calendar = "standard" ;
+	float time_bnds(nens, time, x) ;
+	float sst(nens, time, latitude, longitude) ;
+		sst:standard_name = "sea_surface_temperature" ;
+		sst:long_name = "sea_surface_temperature" ;
+		sst:units = "K" ;
+		sst:_FillValue = -1.e+30f ;
+		sst:missing_value = -1.e+30f ;
+		sst:cell_methods = "time: lat: lon: mean" ;
+	float sic(nens, time, latitude, longitude) ;
+		sic:standard_name = "sea_ice_area_fraction" ;
+		sic:long_name = "sea_ice_concentration" ;
+		sic:units = "1" ;
+		sic:_FillValue = -1.e+30f ;
+		sic:missing_value = -1.e+30f ;
+		sic:cell_methods = "time: lat: lon: mean" ;
+
+// global attributes:
+		:CDI = "Climate Data Interface version 1.6.2 (http://code.zmaw.de/projects/cdi)" ;
+		:Conventions = "CF-1.0" ;
+		:history = "Wed Jan 22 15:54:14 2014: ncrcat SST_1990_08_1059.nc SST_1990_08_115.nc SST_1990_08_1169.nc SST_1990_08_1194.nc SST_1990_08_1346.nc SST_1990_08_137.nc SST_1990_08_1466.nc SST_1990_08_396.nc SST_1990_08_400.nc SST_1990_08_69.nc SST_ens_1990_08.nc\n",
+			"Wed Jan 22 15:31:34 2014: ncecat -O -u nens SST_1990_08_1059.nc SST_1990_08_1059.nc\n",
+			"Wed Jan 22 15:29:23 2014: cdo -splitsel,1 HadISST.2.1.0.0_realisation_1059.nc SST_monthly\n",
+			"5/11/2012 converted to netcdf" ;
+		:source = "Met Office" ;
+		:Title = "Monthly 1 degree version of HadISST.2.1.0.0 realisation 1059" ;
+		:reference = "Rayner et al. in prep" ;
+		:supplementary_information = "contact john.kennedy@metoffice.gov.uk" ;
+		:CDO = "Climate Data Operators version 1.6.2 (http://code.zmaw.de/projects/cdo)" ;
+		:nco_openmp_thread_number = 1 ;
+}

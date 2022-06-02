@@ -1,0 +1,12 @@
+/cluster/shared/noresm/inputdata/atm/waccm/lb/LBC_2014-2500_CMIP6_SSP245_0p5degLat_GlobAnnAvg_c190301.nc
+yearly file
+	float time(time) ;
+	int date(time) ;
+	float CO2_LBC(time, lat) ;
+	float N2O_LBC(time, lat) ;
+	float CH4_LBC(time, lat) ;
+	float CFC11eq_LBC(time, lat) ;
+	float CF2CL2_LBC(time, lat) ;
+2013:
+    /cluster/shared/noresm/inputdata/atm/waccm/lb/LBC_17500116-20150116_CMIP6_0p5degLat_c180227.nc
+    monthly file

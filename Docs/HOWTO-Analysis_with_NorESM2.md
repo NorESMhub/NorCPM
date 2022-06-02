@@ -15,7 +15,7 @@ __With data assimilution__:
 <pre>
 NorCPM: create_template.sh                                NorCPM: submit_analysis.sh
 +-------------------------------------------------------+ +-------------------------------------------------+
-| Member 001                                            | |  +----------+ +--------------+ +----------+     |
+| Member 01                                             | |  +----------+ +--------------+ +----------+     |
 | +------------+       +----------+       +----------+  | |  | case.run | | Data         | | case.run |     |
 | |create_case | ----> |case.setup| ----> |case.build| ----> |          | | Assimilation | |          |     |
 | +------------+       +----------+       +----------+  | |  |          | | with EnKF    | |          |     |
@@ -23,26 +23,26 @@ NorCPM: create_template.sh                                NorCPM: submit_analysi
                             |                             |  |          | |              | |          |     |
 NorCPM: create_ensemble.sh  v                             |  |          | |              | |          |     |
 +---------------------------+---------------------------+ |  |          | |              | |          |     |
-| Member 002                                            | |  |          | |              | |          |     |
+| Member 02                                             | |  |          | |              | |          |     |
 | +------------+       +----------+       +----------+  | |  |          | |              | |          |     |
 | |create_clone| ----> |case.setup| ----> |case.build| ----> |         ----->           ----->        | ... |
 | +------------+       +----------+       +----------+  | |  |          | |              | |          |     |
 |                                                       | |  |          | |              | |          |     |
-| Member 003                                            | |  |          | |              | |          |     |
+| Member 03                                             | |  |          | |              | |          |     |
 | +------------+       +----------+       +----------+  | |  |          | |              | |          |     |
 | |create_clone| ----> |case.setup| ----> |case.build| ----> |          | |              | |          |     |
 | +------------+       +----------+       +----------+  | |  |          | |              | |          |     |
 |                                                       | |  |          | |              | |          |     |
-| Member 004                                            | |  +----------+ +--------------+ +----------+     |
+| Member 04                                             | |  +----------+ +--------------+ +----------+     |
 | ...                                                   | |                                                 |
 +-------------------------------------------------------+ +-------------------------------------------------+
 </pre>
 
 ## Requirements
 1. Worked NorESM2 installed.
-2. A set of NorESM2 restart files for each member.  
-    If start with only one set of restart files. You may need to perturb it to create multiple sets.  
-    There is an example at NorCPM/Tools/create_perturb_SST.sh. Which perturb variable 'temp' in BLOM restart with 10^-10 order random number. And make directory structure for NorCPM read.  
+2. A set of NorESM2 restart files for each member.
+    If start with only one set of restart files. You may need to perturb it to create multiple sets.
+    There is an example at NorCPM/Tools/create_initial_CMIP6_1850_nco.sh. Which perturb variable 'temp' in BLOM restart with 10^-10 order random number. And make directory structure for NorCPM read.
 3. Observation data.
 4. NorCPM (this)
 
@@ -57,11 +57,11 @@ Set the STOP_OPTION to 'nday' and STOP_N to 14 in setting file. Which allowed mo
 
 ### Modify the analysis setting file
 
-Check the setting file in NorCPM/Analysis/setting/template.sh. Some of the settings can be retrieved from NorESM case directory. Others should be set.
+Check the setting file in NorCPM/Analysis/setting/test_noresm2_02.sh. Some of the settings can be retrieved from NorESM case directory. Others should be set.
 
 ### Modify the submit script
 
-The script submit_reanalysis.sh run both data assimilation and model until $ENDYEAR set in setting file. Some variables need be modified directly in script. One can use it as a template.
+The script submit_reanalysis.sh run both data assimilation and model until $ENDYEAR set in setting file. Some variables need be modified directly in file. One can use it as a template.
 
 1. Check the parameters for queue system. Such as those lines begin with "#SBATCH". The variable 'wallTime' should be same as time requested from queue system. That is the line begin with "#SBATCH --time=".
 
@@ -70,28 +70,28 @@ The script submit_reanalysis.sh run both data assimilation and model until $ENDY
 ### Submit job with data assimilation
     sbatch NorCPM/Analysis/submit_reanalysis.sh
 
-If the job finish normally, output data would be at $WORK/archive/. Or one can run following command for each member:  
-./case.submit case.st_archive
+In NorESM2(CESM2) the short-term archiving is separated from main simulation. This script runs case.submit at first member, and submits st_archive of other members.
 
+If the job finish normally, output data would be at $WORK/archive/.
 
 ## Default directory structure
-This is the directory settings at NorCPM/Prediction/use_cases/template.in and NorCPM/Analysis/setting/template.sh
+This is the directory settings at NorCPM/Prediction/use_cases/template.in and NorCPM/Analysis/setting/test_noresm2_02.sh
 <pre>
     ${WORK}
     ├── archive   ## Output data directory
-    │   ├── ${PREFIX}_${MEMBERTAG}001
-    │   ├── ${PREFIX}_${MEMBERTAG}002
+    │   ├── ${PREFIX}_${MEMBERTAG}01
+    │   ├── ${PREFIX}_${MEMBERTAG}02
     │   └── ...
     ├── norcpm_cases   ## Case dir of each member
-    │   ├── ${PREFIX}_${MEMBERTAG}001
-    │   ├── ${PREFIX}_${MEMBERTAG}002
+    │   ├── ${PREFIX}_${MEMBERTAG}01
+    │   ├── ${PREFIX}_${MEMBERTAG}02
     │   └── ...
     └── noresm         ## bld and run, slightly different from original NorESM.
         ├── ${PREFIX}
-        │   ├── ${PREFIX}_${MEMBERTAG}001  ## bld
-        │   │   └── run                    ## run
-        │   ├── ${PREFIX}_${MEMBERTAG}002  ## bld
-        │   │   └── run                    ## run
+        │   ├── ${PREFIX}_${MEMBERTAG}01  ## bld
+        │   │   └── run                   ## run
+        │   ├── ${PREFIX}_${MEMBERTAG}02  ## bld
+        │   │   └── run                   ## run
         │   └── ...
         ├── ANALYSIS   ## Data assimilation work directory
         └── RESULT     ## Data assimilation result
@@ -99,12 +99,12 @@ This is the directory settings at NorCPM/Prediction/use_cases/template.in and No
     └── cases
         ├── ${REST_CASE}
         │   └── ${START_YEARS}-${START_MONTHS}-${START_DAYS}-00000
-        ├── ${REST_CASE}_${MEMBERTAG}001  
+        ├── ${REST_CASE}_${MEMBERTAG}01  
         │   └── ${START_YEARS}-${START_MONTHS}-${START_DAYS}-00000
-        ├── ${REST_CASE}_${MEMBERTAG}002
+        ├── ${REST_CASE}_${MEMBERTAG}02
         │   └── ${START_YEARS}-${START_MONTHS}-${START_DAYS}-00000
         └── ...
-    ${WORKSHARED}  ## Prepared data and prebuild binaries for data assimilation. Should be available on Fram and Betzy
+    ${WORKSHARED}  ## Prepared data for data assimilation. Should be available on Fram and Betzy
     ├── bin
     ├── Input
     └── Obs

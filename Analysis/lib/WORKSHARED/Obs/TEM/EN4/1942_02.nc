@@ -1,0 +1,1 @@
+/cluster/shared/noresm/norcpm/Obs/TEM/PROFILES/1942_02.nc

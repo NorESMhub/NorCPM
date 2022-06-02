@@ -4,13 +4,11 @@
 #module load NCO/4.7.2-intel-2018a
 module load NCO/4.8.1-intel-2019a  ## betzy
 
-## A set of restart files should be at:
-##   $RESBASEDIR/$CASENAME/DATESTR/
 CASENAME='NHISTfrc2_f09_tn14_20191025'
-RESBASEDIR="/cluster/projects/nn9039k/people/$USER/restarts/cases"
-DATESTR='1970-01-01-00000'
 
-NMEM=8
+RESBASEDIR="/cluster/projects/nn9039k/people/pgchiu/restarts/cases"
+DATESTR='1970-01-01-00000'
+NMEM=30
 PWDDIR=`pwd`
 
 ## check $CASENAME/$DATESTR  or  $CASENAME/rest/$DATESTR
@@ -29,7 +27,7 @@ fi
 # loop over members and perturb MICOM restarts
 echo "do in $RESBASEDIR/ "
 cd $RESBASEDIR/
-for MEM in `seq -w 001 $NMEM`
+for MEM in `seq -w 01 $NMEM`
 do 
   cp -as "${RESBASEDIR}/${CASENAME}/${REST}/" "${CASENAME}_mem$MEM"  ## make link
   rm -f ${CASENAME}_mem${MEM}/*/rpointer.*

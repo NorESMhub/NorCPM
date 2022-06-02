@@ -23,7 +23,7 @@ __Without data assimilution__:
 <pre>
 NorCPM: create_template.sh                                NorCPM: submit_ensemble.sh
 +-------------------------------------------------------+ +----------------------------+
-| Member 001                                            | |  +------------------------+|
+| Member 01                                             | |  +------------------------+|
 | +------------+       +----------+       +----------+  | |  |case.submit             ||
 | |create_case | ----> |case.setup| ----> |case.build| ----> |   case.run(all members)||
 | +------------+       +----------+       +----------+  | |  | st_archive             ||
@@ -31,17 +31,17 @@ NorCPM: create_template.sh                                NorCPM: submit_ensembl
                             |                             |                            |
 NorCPM: create_ensemble.sh  v                             |                            |
 +-------------------------------------------------------+ |                            |
-| Member 002                                            | |                            |
+| Member 02                                             | |                            |
 | +------------+       +----------+       +----------+  | |  +-----------------------+ |
 | |create_clone| ----> |case.setup| ----> |case.build| ----> |case.submit st_archive | |
 | +------------+       +----------+       +----------+  | |  +-----------------------+ |
 |                                                       | |                            |
-| Member 003                                            | |                            |
+| Member 03                                             | |                            |
 | +------------+       +----------+       +----------+  | |  +-----------------------+ |
 | |create_clone| ----> |case.setup| ----> |case.build| ----> |case.submit st_archive | |
 | +------------+       +----------+       +----------+  | |  +-----------------------+ |
 |                                                       | |                            |
-| Member 004                                            | |                            |
+| Member 04                                             | |                            |
 | ...                                                   | |                            |
 +-------------------------------------------------------+ +----------------------------+
 </pre>
@@ -68,14 +68,14 @@ There is an example file at NorCPM/Prediction/use_cases/template.in:
 
     The directory should be:
 
-    $REST_PATH_LOCAL/$REST_PREFIX{001..$MAX_MEMBERS}/$START_YEARS-$START_MONTHS-$START_DAYS-00000
+    $REST_PATH_LOCAL/$REST_PREFIX{01..$MAX_MEMBERS}/$START_YEARS-$START_MONTHS-$START_DAYS-00000
 
 * REST_PATH_LOCAL: The abslute path where restart files 
-* PREFIX: The NorCPM case name. First Member will be named as ${PREFIX}_${MEMTAG}001 and so on.
+* PREFIX: The NorCPM case name. First Member will be named as ${PREFIX}_${MEMTAG}01 and so on.
 * START_YEARS: Restart file year.
 * START_MONTHS: Restart file month.
 * START_DAYS: Restart file day.
-* MAX_MEMBERS: Max members NorCPM will be run. Start from 001.
+* MAX_MEMBERS: Max members NorCPM will be run. Start from 01.
 
 * SCRIPTPATH: Script path. No need to edit.
 
@@ -89,7 +89,7 @@ There is an example file at NorCPM/Prediction/use_cases/template.in:
 
 * ASK_BEFORE_REMOVE: 1 means ask before removeing exiting cases when create case.
  
-* MEMBERTAG: The 'mem' of '$CASENAME_mem001'.
+* MEMBERTAG: The 'mem' of '$CASENAME_mem01'.
 * MAX_PARALLEL_STARCHIVE: The limitation of submit short-term archiving process, not use in NorESM2.
 * DOWNSCALING: Output variable for NEMO. Not use here.
 * ANOM_CPL: Anomaly coupled (Koseki et al. 2017). Not use here.
@@ -98,11 +98,11 @@ There is an example file at NorCPM/Prediction/use_cases/template.in:
 * SCRIPTSROOT: Path to NorESM CIME scripts. No need to change.
 * CESMVERSION: The version of NorESM(CESM). The only vaild value is '2'. Other value or unset will be treat as NorESM 1.x.
 
-* NTASKS, NTASKS_OCN, STOP_OPTION, STOP_N, WALLTIME, TOTALPE, COST_PES, SCRIPTDIR: This variables are only use in setting PRECASESETUP and PRECASESETUP001. 
+* NTASKS, NTASKS_OCN, STOP_OPTION, STOP_N, WALLTIME, TOTALPE, COST_PES, SCRIPTDIR: This variables are only use in setting PRECASESETUP and PRECASESETUP01. 
 
 
 * PRECASESETUP: Commands set in this variable will be executed in case directory of each member before case.setup. 
-* PRECASESETUP001: Same as PRECASESETUP, but only execute in first member.
+* PRECASESETUP01: Same as PRECASESETUP, but only execute in first member.
 
 Assume settings are save as settingfile.in.
 
@@ -124,31 +124,31 @@ In NorESM2(CESM2) the short-term archiving is separated from main simulation. Th
 If the job finish normally, output data would be at $WORK/archive/.
 
 ## Default directory structure
-This is the directory settings at NorCPM/prediction/use_cases/example_NorESM2/template.in.
+This is the directory settings at NorCPM/prediction/use_cases/example_NorESM2/settingfile.in.
 <pre>
     ${WORK}
     ├── archive   ## Output data directory
-    │   ├── ${PREFIX}_${MEMBERTAG}001
-    │   ├── ${PREFIX}_${MEMBERTAG}002
+    │   ├── ${PREFIX}_${MEMBERTAG}01
+    │   ├── ${PREFIX}_${MEMBERTAG}02
     │   └── ...
     ├── norcpm_cases   ## Case dir of each member
-    │   ├── ${PREFIX}_${MEMBERTAG}001
-    │   ├── ${PREFIX}_${MEMBERTAG}002
+    │   ├── ${PREFIX}_${MEMBERTAG}01
+    │   ├── ${PREFIX}_${MEMBERTAG}02
     │   └── ...
     └── noresm         ## bld and run, slightly different from original NorESM.
         └── ${PREFIX}
-            ├── ${PREFIX}_${MEMBERTAG}001  ## bld
+            ├── ${PREFIX}_${MEMBERTAG}01  ## bld
             │   └── run                   ## run
-            ├── ${PREFIX}_${MEMBERTAG}002  ## bld
+            ├── ${PREFIX}_${MEMBERTAG}02  ## bld
             │   └── run                   ## run
             └── ...
     ${REST_PATH_LOCAL}  ## restart file
     └── cases
         ├── ${REST_CASE}
         │   └── ${START_YEARS}-${START_MONTHS}-${START_DAYS}-00000
-        ├── ${REST_CASE}_${MEMBERTAG}001  
+        ├── ${REST_CASE}_${MEMBERTAG}01  
         │   └── ${START_YEARS}-${START_MONTHS}-${START_DAYS}-00000
-        ├── ${REST_CASE}_${MEMBERTAG}002
+        ├── ${REST_CASE}_${MEMBERTAG}02
         │   └── ${START_YEARS}-${START_MONTHS}-${START_DAYS}-00000
         └── ...
 </pre>

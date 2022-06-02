@@ -695,7 +695,7 @@ contains
                 call dpotrf('U', nlobs, X1, nlobs, lapack_info)
                 if (lapack_info /= 0) then
                    print *, '  ERROR: m_local_analysis(): LAPACK error in dpotrf: errno = '&
-                        , lapack_info, 'i, j =', i, j
+                        , lapack_info, 'i, j =', i, j 
                    stop
                 endif
              
@@ -724,7 +724,8 @@ contains
                 call dpotrf('U', nrens, X1, nrens, lapack_info)
                 if (lapack_info /= 0) then
                    print *, '  ERROR: m_local_analysis(): LAPACK error in dpotrf: errno = '&
-                        , lapack_info, 'i, j =', i, j
+                        , lapack_info, 'i, j =', i, j &
+                        , 'nrens = ',nrens
                    stop
                 endif
                 call dpotri('U', nrens, X1, nrens, lapack_info)

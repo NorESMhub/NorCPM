@@ -1,0 +1,125 @@
+#!/bin/bash
+######################################################################################
+### This script is used to create NorCPM case and run it without data assimilation.
+### 
+### A NorCPM case contains multiple members of NorESM.
+### The directory structure will be like following:
+### Casedir: 
+###     CASESROOT/PREFIX/PREFIX_mem01
+###     CASESROOT/PREFIX/PREFIX_mem02
+###     CASESROOT/PREFIX/PREFIX_mem03
+###     ...
+### Build: 
+###     EXESROOT/PREFIX/NORCPM_CASE_mem01
+###     EXESROOT/PREFIX/NORCPM_CASE_mem02
+###     EXESROOT/PREFIX/NORCPM_CASE_mem03
+###     ...
+### Run:
+###     EXESROOT/PREFIX/NORCPM_CASE_mem01/run
+###     EXESROOT/PREFIX/NORCPM_CASE_mem02/run
+###     EXESROOT/PREFIX/NORCPM_CASE_mem03/run
+###     ...
+###
+######################################################################################
+
+
+### Machine settings
+MACH=betzy_suggested ## much better than betzy
+WORK=/cluster/work/users/$USER
+CASESROOT=$WORK/norcpm_cases
+EXESROOT=$WORK/noresm/
+ARCHIVESROOT=$WORK/archive
+CCSMROOT=$(readlink -f ../Modelsrc/NorESM) 
+
+### Case settings
+## The case name will be ${PREFIX}_${START_YEAR}${START_MONTH}${START_DAY}
+PREFIX='norcpm2_template'
+##     if start date need be append in case name, comment ENSEMBLE_PREFIX
+ENSEMBLE_PREFIX=$PREFIX 
+
+### Start model date, also be used to get restart file
+START_YEARS=1986
+START_MONTHS='11'
+START_DAYS='15'
+
+NMEMBER=3 # number of prediction members 
+COMPSET=NHIST
+RES=f09_tn14
+ACCOUNT=nn9039k
+WALLTIME='0-00:30:00'  
+
+### Run length
+STOP_OPTION=nday # units for run length specification STOP_N 
+STOP_N=1 # run continuesly for this length 
+RESTART=0   # restart this many times, but not available in betzy
+RESUBMIT=0  # submit when done, but not available in betzy
+
+
+##### The NTASKS, ROOTPE setting here will override default setting.
+##### Change here if any optimize process.
+NTASKS=512
+NTASKS_OCN=354 ## NTASKS of MPIOM must be set to some specific number.
+	## blom_dimensions: Available processor counts: 32 42 63 77 91 123 156 186 256 354
+MEMBER_PES=$NTASKS  ## This value is the number of PE for each member.
+
+
+### Restart file settings
+##### The restart file should be in directories like following:
+#####    ${REST_PATH_LOCAL}/${REST_PREFIX}01/${START_YEARS}-00000/
+#####    ${REST_PATH_LOCAL}/${REST_PREFIX}02/${START_YEARS}-00000/
+#####    ${REST_PATH_LOCAL}/${REST_PREFIX}03/${START_YEARS}-00000/
+#####    ...
+##### or 
+#####    ${REST_PATH_LOCAL}/${REST_PREFIX}01/rest/${START_YEARS}-00000/
+#####    ${REST_PATH_LOCAL}/${REST_PREFIX}02/rest/${START_YEARS}-00000/
+#####    ${REST_PATH_LOCAL}/${REST_PREFIX}03/rest/${START_YEARS}-00000/
+#####    ...
+REST_PATH_LOCAL=/cluster/projects/nn9039k/people/pgchiu/restarts
+REST_CASE=NHIST_f19_tn14_20190710_19700101
+REST_CASE=norcpm_ana_f09_tn14
+REST_PREFIX=${REST_CASE}_mem # reference prefix, including everything but member id
+RUN_REFCASE=      ## sometimes RUN_REFCASE is different from REST_CASE
+          ## Keep it empty if casename of restart files are $REST_CASE_mem01 (restart files are generated from NorCPM case)
+          ## Or fill it with casename if restart files are pertubed from single case.
+RESTART_NOT_DA=
+        ## If restart file arcived before data assimilation. This option will start prediction from next month.
+        ## Keep it empty to disable the function.
+
+### Run and derived settings. Do not need to modify usually.
+SCRIPTPATH=`readlink -f $0`
+ANAPATH=`dirname $SCRIPTPATH`/../Analysis 
+ASK_BEFORE_REMOVE=0 # 1=will ask before removing exist cases when create
+MEMBERTAG=mem # leave empty or set to 'mem' 
+MAX_PARALLEL_STARCHIVE=10 
+DOWNSCALING=0 #will stored output to downscale with NEMO
+ANOM_CPL=0  #1 means you use anomaly coupled (Koseki et al. 2017)
+
+SCRIPTSROOT=$CCSMROOT/cime/scripts
+#CESMVERSION=2  # CESM version. Some commands are different.
+TOTALPE=$(echo "$MEMBER_PES * $NMEMBER" | bc ) ## do
+SCRIPTDIR=$(dirname ${SCRIPTPATH})
+
+
+### Commands use after create_case, before case.setup.
+PRECASESETUP="./xmlchange NTASKS=${NTASKS}; ./xmlchange NTASKS_OCN=${NTASKS_OCN}; ./xmlchange NTASKS_ESP=1; ./xmlchange ROOTPE=0"
+PRECASESETUP=$PRECASESETUP"; sed -i -e'/<\/environment_variables>/i\ \ \ \ <env\ name=\"MEMBER_PES\">${MEMBER_PES}<\/env>' env_mach_specific.xml"
+PRECASESETUP=$PRECASESETUP"; cp ${SCRIPTDIR}/../SourceMods.noresm2/src.drv/cime_comp_mod.F90 ./SourceMods/src.drv/"
+                            ## cp NorCPM/SourceMods.noresm2/cime_comp_mod.F90 to $CASE/SourceMods/src.drv/
+PRECASESETUP=$PRECASESETUP"; cp ${SCRIPTDIR}/../SourceMods.noresm2/src.clm/controlMod.F90 ./SourceMods/src.clm/"
+                            ## Patch of https://github.com/ESCOMP/ctsm/issues/786
+
+PRECASESETUP=$PRECASESETUP"; ./xmlchange STOP_N=${STOP_N} ; ./xmlchange STOP_OPTION=${STOP_OPTION}; ./xmlchange --subgroup case.run JOB_WALLCLOCK_TIME=${WALLTIME}" 
+PRECASESETUP=$PRECASESETUP"; ./xmlchange --subgroup case.st_archive JOB_WALLCLOCK_TIME=24:00:00" 
+
+### Commands use after create_case, before case.setup. For mem01 only.
+PRECASESETUP01=" sed -i -e'/<group id=.case.run.>/a    <entry id=\"task_count\" value=\"${TOTALPE}\"><type>char<\/type><\/entry>' env_batch.xml" 
+                            ## increase requested resource for all members, but need be 1 for case_st_archive
+                            #### add this to case.run group in env_batch.xml ?
+                            #### <entry id="task_count" value='${TOTALPE}'> 
+                            ####    <type>char</type>
+                            #### </entry>
+                            ####
+PRECASESETUP01=$PRECASESETUP01"; ./xmlchange USER_REQUESTED_QUEUE=normal --subgroup=case.run"
+                            #### force case.run use normal queue for Betzy
+#PRECASESETUP01=$PRECASESETUP01"; ./xmlchange --subgroup case.st_archive template=template.st_archive_NorCPM_mem01"
+                            #### modified template.st_archive submit st_archive for all members
