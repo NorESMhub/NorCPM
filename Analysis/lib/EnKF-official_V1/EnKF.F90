@@ -344,8 +344,8 @@ program EnKF
 #if defined(QMPI)
   call barrier()
 #endif
-!  print *, 'EnKF: Finished'
-!  call stop_mpi()
+  print *, 'EnKF: Finished'
+  call stop_mpi()
 end program EnKF
 
 #if defined(_G95_)

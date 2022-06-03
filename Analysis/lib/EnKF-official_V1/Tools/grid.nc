@@ -1,0 +1,1 @@
+/cluster/shared/noresm/inputdata/ocn/micom/gx1v6/20101119/grid.nc

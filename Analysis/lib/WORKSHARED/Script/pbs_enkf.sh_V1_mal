@@ -1,17 +1,31 @@
-#!/bin/bash
+#!/bin/bash -exv
 ulimit -s unlimited
 cd /cluster/work/users/${USER}/noresm/C.A.S.E.D.I.R/ANALYSIS/
+if [ ! -z "$(ncks -M forecast001.nc |grep ':enkf ')" ]; then
+    echo $i is already EnKF modified.
+    echo $(readlink $forecast001.nc)
+    echo Skip EnKF
+    exit
+fi
+
 echo ensave
 mpirun -n NENS ./ensave forecast NENS || { echo '1st ensave error, exit...' ; exit 1 ; }
 echo EnKF enkf.prm
 #mpirun -n 512 ./EnKF enkf.prm
 mpirun -n 512 ./EnKF enkf.prm
 wait
-echo EnKF run $?
 if [ $? != 0 ];then
     echo Error occur when run EnKF
     exit 1
+else
+    echo 'ncatted add enkf=1'
+    for i in forecast???.nc ; do 
+        #ncatted -a 'enkf,global,a,i,1' $i 
+        ncatted --glb_att_add enkf=1 $i 
+    done
 fi
+
+
 
 mv forecast_avg.nc forecast_avg.nc_tmp
 echo ensave
