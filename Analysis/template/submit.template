@@ -175,7 +175,7 @@ while true ;do
         exit 0
     fi
 
-    if [ $SKIPASSIM -eq 0 ] || [ ! -d "${NORCPM_RUNDIR}/${RESULT_DIRNAME}"  ] ;then  ## not skip first data assimulation
+    if [ $SKIPASSIM -eq 0 ]  ;then  ## not skip first data assimulation
         echo "Data assimulation at $yr $mm"
         cd ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/
 
