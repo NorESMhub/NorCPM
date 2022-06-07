@@ -88,7 +88,7 @@ skip_micom_ensemble_init='true'
 #REF_PERIODLIST=('1980-2010' '1980-2010' '1993-2010' '1980-2010' '1980-2010')
 OBSLIST=("SST" "TEM" "SAL")
 EnKF_Version=1
-COMBINE_ASSIM=( '1' '1' '1')
+COMBINE_ASSIM=( '0' '0' '1')
 
 ## Data sets
 PRODUCERLIST=('HADISST2' 'EN421' 'EN421')  ## norcpm_ana_f09_tn14 1980-2010
