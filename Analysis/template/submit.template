@@ -95,8 +95,14 @@ RESULT_DIRNAME='RESULT'
 mkdir -p ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}
 #### Copy execuable binaries.
 ##### enssave
-cp -f ${WORKSHARED}/bin/ensave ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/
-cp -f ${WORKSHARED}/bin/prep_obs_${fforano}_V${EnKF_Version} ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/prep_obs
+
+if [[ "$WORKSHARED" == "/cluster/shared/noresm/norcpm"* ]];then  ## for betzy
+    cp -f ${WORKSHARED}/bin/ensave_norcpm2 ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/
+    cp -f ${WORKSHARED}/bin/prep_obs_${fforano}_V${EnKF_Version}_norcpm2 ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/prep_obs
+else
+    cp -f ${WORKSHARED}/bin/ensave ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/
+    cp -f ${WORKSHARED}/bin/prep_obs_${fforano}_V${EnKF_Version} ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/prep_obs
+fi
 ##### EnKF
 cp -f ${WORKSHARED}/bin/EnKF_tp_${fforano}_V${EnKF_Version} ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/EnKF
                             
