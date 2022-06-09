@@ -580,61 +580,7 @@
   </batch_system>
 
   <batch_system MACH="betzy" type="slurm_nor">
-    <batch_submit>sbatch</batch_submit>
-    <submit_args>
-      <arg flag="--time" name="$JOB_WALLCLOCK_TIME"/>
-      <arg flag="-p" name="$JOB_QUEUE"/>
-      <arg flag="--account" name="$PROJECT"/>
-    </submit_args>
-    <directives>
-      <directive> --ntasks={{ total_tasks }}</directive>
-      <directive> --export=ALL</directive>
-      <directive> --switches=1</directive>
-    </directives>
-    <queues>
-      <queue walltimemax="00:59:00" nodemin="8" nodemax="288" default="true">normal</queue>
-      <queue walltimemax="00:59:00" nodemin="1" nodemax="1" >preproc</queue>
-      <queue walltimemax="00:30:00" nodemin="1" nodemax="4" >devel</queue>
-    </queues>
-  </batch_system>
-  <batch_system MACH="betzy_suggested" type="slurm_nor">
     <batch_submit>sbatch --exclude $HOME/buserror.nodes.txt</batch_submit>
-    <submit_args>
-      <arg flag="--time" name="$JOB_WALLCLOCK_TIME"/>
-      <arg flag="-p" name="$JOB_QUEUE"/>
-      <arg flag="--account" name="$PROJECT"/>
-    </submit_args>
-    <directives>
-      <directive> --ntasks={{ total_tasks }}</directive>
-      <directive> --export=ALL</directive>
-      <directive> --switches=1</directive>
-    </directives>
-    <queues>
-      <queue walltimemax="00:59:00" nodemin="8" nodemax="288" default="true">normal</queue>
-      <queue walltimemax="00:59:00" nodemin="1" nodemax="1" >preproc</queue>
-      <queue walltimemax="00:30:00" nodemin="1" nodemax="4" >devel</queue>
-    </queues>
-  </batch_system>
-  <batch_system MACH="betzy_experimental" type="slurm_nor">
-    <batch_submit>sbatch</batch_submit>
-    <submit_args>
-      <arg flag="--time" name="$JOB_WALLCLOCK_TIME"/>
-      <arg flag="-p" name="$JOB_QUEUE"/>
-      <arg flag="--account" name="$PROJECT"/>
-    </submit_args>
-    <directives>
-      <directive> --ntasks={{ total_tasks }}</directive>
-      <directive> --export=ALL</directive>
-      <directive> --switches=1</directive>
-    </directives>
-    <queues>
-      <queue walltimemax="00:59:00" nodemin="8" nodemax="288" default="true">normal</queue>
-      <queue walltimemax="00:59:00" nodemin="1" nodemax="1" >preproc</queue>
-      <queue walltimemax="00:30:00" nodemin="1" nodemax="4" >devel</queue>
-    </queues>
-  </batch_system>
-  <batch_system MACH="betzy_testslow" type="slurm_nor">
-    <batch_submit>sbatch</batch_submit>
     <submit_args>
       <arg flag="--time" name="$JOB_WALLCLOCK_TIME"/>
       <arg flag="-p" name="$JOB_QUEUE"/>

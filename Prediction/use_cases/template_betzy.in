@@ -24,7 +24,7 @@
 
 
 ### Machine settings
-MACH=betzy_suggested ## much better than betzy
+MACH=betzy
 WORK=/cluster/work/users/$USER
 CASESROOT=$WORK/norcpm_cases
 EXESROOT=$WORK/noresm/
@@ -33,7 +33,7 @@ CCSMROOT=$(readlink -f ../Modelsrc/NorESM)
 
 ### Case settings
 ## The case name will be ${PREFIX}_${START_YEAR}${START_MONTH}${START_DAY}
-PREFIX='norcpm2_template'
+PREFIX='norcpm2_check_micominit'
 ##     if start date need be append in case name, comment ENSEMBLE_PREFIX
 ENSEMBLE_PREFIX=$PREFIX 
 
@@ -49,7 +49,7 @@ ACCOUNT=nn9039k
 WALLTIME='0-00:30:00'  
 
 ### Run length
-STOP_OPTION=nday # units for run length specification STOP_N 
+STOP_OPTION=nmonth # units for run length specification STOP_N 
 STOP_N=1 # run continuesly for this length 
 RESTART=0   # restart this many times, but not available in betzy
 RESUBMIT=0  # submit when done, but not available in betzy

@@ -97,10 +97,10 @@ mkdir -p ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}
 ##### enssave
 
 if [[ "$WORKSHARED" == "/cluster/shared/noresm/norcpm"* ]];then  ## for betzy
-    cp -f ${WORKSHARED}/bin/ensave_norcpm2 ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/
+    cp -f ${WORKSHARED}/bin/ensave_norcpm2 ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/ensave
     cp -f ${WORKSHARED}/bin/prep_obs_${fforano}_V${EnKF_Version}_norcpm2 ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/prep_obs
 else
-    cp -f ${WORKSHARED}/bin/ensave ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/
+    cp -f ${WORKSHARED}/bin/ensave ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/ensave
     cp -f ${WORKSHARED}/bin/prep_obs_${fforano}_V${EnKF_Version} ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/prep_obs
 fi
 ##### EnKF
@@ -272,7 +272,7 @@ while true ;do
         echo 'Finished all EnKF; now post processing'
 
         ## apply result to restart file with micom_ensemble_init
-        if [ -z "$skip_micom_ensemble_init" ] ; then
+        if [ ! "$skip_micom_ensemble_init" == 'true' ] ; then
             cd ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/
             echo Try to run micom_ensemble_init...
             if [ -z "$(grep micom_ensemble_init forecast001.nc)" ] ; then

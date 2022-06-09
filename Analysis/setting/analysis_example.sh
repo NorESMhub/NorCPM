@@ -7,7 +7,7 @@ CPUACCOUNT=nn9039k
 
 ## NORCPM_CASE: Case name of NorCPM.
 ##              The members will be ${NORCPM_CASE}_mem01...etc
-NORCPM_CASE=norcpm2_template
+NORCPM_CASE=norcpm2_check_micominit
 
 ## NORCPM_CASEDIR: The directory contain cases of every member
 ##   example: ${NORCPM_CASEDIR}/${NORCPM_CASE}_mem01
@@ -77,7 +77,7 @@ CASEDIR=${PREFIX}
 VERSION=${CASEDIR}'_mem'
 
 ####  Data Assimilation settings
-skip_micom_ensemble_init='true'
+skip_micom_ensemble_init=''
 #Possible to assimilate all observations 
 #OBSLIST=("SST" "ICEC" "SSH" "TEM" "SAL")
 #PRODUCERLIST=('HADISST2' 'HADISST2' 'CLS' 'EN4' 'EN4')
