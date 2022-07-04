@@ -1,0 +1,416 @@
+#!/bin/bash -e
+## Project:
+#SBATCH --account=JOBACCOUNT
+## Job name:
+#SBATCH --job-name=JOBNAME
+#SBATCH --error=norcpm_err_%j
+#SBATCH --output=norcpm_log_%j
+#SBATCH --ntasks-per-node=NTASKSPERNODE
+#SBATCH --nodes=JOBNODES
+#SBATCH --ntasks=JOBNTASKS
+#SBATCH --export=ALL
+##SBATCH --exclusive
+## Wall time limit:
+#SBATCH --time=JOBTIMEREQUEST
+wallTime=JOBTIMEREQUEST  ## should be same as above SBATCH --time=[DD-]HH:MM:SS
+NowPWD=$PWD
+## Queue info
+DateNow=$(date +%s)
+wallTimeSec=$(echo $wallTime | sed -E 's/(.*)-(.*):(.+):(.+)/\1*86400+\2*3600+\3*60+\4/;s/(.*):(.+):(.+)/\1*3600+\2*60+\3/;s/(.+):(.+)/\1*60+\2/' | bc)
+let queEnd=$DateNow+$wallTimeSec || true
+##
+
+##==============================================================================
+##  This script (NorCPM2) preform NorESM2 intergation and data assimulation monthly.
+##  
+##  Requirements:
+##      NorESM2 case members created by ${NORCPM_ROOT}/baseline/create_template.sh and create_ensemble.sh
+##  Usage:
+##      Submit this script to queue system.
+##      ex:
+##          sbatch submit_reanalysis.sh
+##
+##  Ping-Gin.Chiu@uib.no receive from Ingo, Jul2020
+##      modified as a template May2022
+##      rewrite, remove self resubmit Jun2022
+##                      ^^^^^^^^^^^^^ I like it, but seems not straight
+##==============================================================================
+
+module -q purge
+
+settingFile="SETTINGFILE"
+source "${settingFile}"
+## Directories
+NORCPM_RUNDIR="${EXESROOT}/${CASENAME}"
+NORCPM_CASEDIR="${CASESROOT}/${CASENAME}"
+ANALYSISDIR="${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}"
+logfile=${NORCPM_CASEDIR}/analysis_run_${SLURM_JOBID}.log
+
+## Source environment 
+envfile="${NORCPMROOT}/Analysis/env/env.${MACH}"
+if [ ! -f  "${envfile}" ] ;then
+   echo "The machine setting is not available, quit."
+   echo "${envfile}"
+   exit 1
+fi
+source "$envfile"
+
+## Assimulation with full field or anomaly field
+test "${ANOMALYASSIM}" -eq 1 &&  fforano='anom' || fforano='ff'
+
+
+## define opeartions
+copybins () {
+    ## copy compiled bins
+    mkdir -p ${ANALYSISDIR}
+    ##### enssave
+    if [[ "$WORKSHARED" == "/cluster/shared/noresm/norcpm"* ]];then  ## for betzy
+        cp -f ${WORKSHARED}/bin/ensave_norcpm2 ${ANALYSISDIR}/ensave
+        cp -f ${WORKSHARED}/bin/prep_obs_${fforano}_V${EnKF_Version}_norcpm2 ${ANALYSISDIR}/prep_obs
+    else
+        cp -f ${WORKSHARED}/bin/ensave ${ANALYSISDIR}/ensave
+        cp -f ${WORKSHARED}/bin/prep_obs_${fforano}_V${EnKF_Version} ${ANALYSISDIR}/prep_obs
+    fi
+    ##### EnKF
+    cp -f ${WORKSHARED}/bin/EnKF_tp_${fforano}_V${EnKF_Version} ${ANALYSISDIR}/EnKF
+                                
+    ##### micom_ensemble_init
+    cp -f ${WORKSHARED}/bin/micom_ensemble_init_${RES} ${ANALYSISDIR}/micom_ensemble_init
+    ##### grid.nc
+    ln -sf  $GRIDPATH ${ANALYSISDIR}/
+}
+
+xmlc_allmember (){
+    ## apply xmlchange to all members
+    for i in $(seq $MEM01 $NMEMBER); do
+        ii=$(printf "%2.2d" $i)
+        cd ${NORCPM_CASEDIR}/${CASENAME}_${MEMTAG}${ii}/
+        ./xmlchange "$*"
+        ./preview_namelists  >>  $logfile &
+    done
+    wait
+}
+
+runmodel () {
+    module -q purge
+    echo "Intergate $runNDay day for assimulation." >> $logfile
+    cd ${NORCPM_CASEDIR}/${CASENAME}_${MEMTAG}01/
+    './.case.run' && xmlc_allmember 'CONTINUE_RUN=True'
+}
+
+st_archive_allmember (){
+    for mem in `seq -w 01 $NMEMBER` ; do
+        cd ${NORCPM_CASEDIR}/${CASENAME}_${MEMTAG}${mem}/
+        './case.st_archive'  >>  $logfile &
+    done
+    wait
+}
+
+link_forecast (){
+    year=$1
+    month=$2
+    mm=$(printf '%2.2d' $month)
+    yr=$(printf '%4.4d' $year)
+
+    cd ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}
+    for (( proc = 1; proc <= ${NMEMBER}; ++proc ))
+    do
+        mem=`echo 0$proc | tail -3c`
+        mem3=`echo 00$proc | tail -4c`
+        
+        fn=${NORCPM_RUNDIR}/${CASENAME}_${MEMTAG}${mem}/run/$(grep nc ${NORCPM_RUNDIR}/${CASENAME}_${MEMTAG}${mem}/run/rpointer.ocn | tr -d ' \n')
+        if [ ! -f "$fn" ] ;then
+             echo "Restart ${fn} is missing !! we quit"
+             exit 1
+        fi
+        ## check if soft link, cp it
+        if [  -L "$fn" ] ;then
+            absfn=$(readlink a -f)
+            rm "$fn"
+            cp -v "$absfn" "$fn"
+        fi
+        ln -sf ${fn} forecast${mem3}.nc
+    done
+
+}
+
+pbs_enkf (){
+    test ! -z "$(which ncatted)" || (echo "nco is necessary, check env.${MACH}" ;exit 1)
+    cd ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/
+    if [ ! -z "$(ncks -M forecast001.nc |grep ':enkf ')" ]; then
+        echo "Already EnKF modified: $(readlink $forecast001.nc), skip."
+        return
+    fi
+
+    echo 1st ensave
+    mpirun -n "$NMEMBER" ./ensave forecast "$NMEMBER" || ( echo '1st ensave error, exit...' ; exit 1 )
+    echo EnKF enkf.prm
+    ## need check changed before EnKF and after
+    sha1sum forecast001.nc > forecast001.nc.sha1sum
+    ## EnKF does not call MPI_Finalize, it cause abnormal exit status
+    mpirun -n 512 ./EnKF enkf.prm && enkf_res=0 || enkf_res=1
+    wait
+    if [ -z "$(sha1sum --quiet -c forecast001.nc.sha1sum)" ];then  ## check modified or not
+        echo Error occur when run EnKF
+        exit 1
+    else
+        ncatted --glb_att_add enkf=1 forecast001.nc
+        #echo 'ncatted add enkf=1'
+        #for i in forecast???.nc ; do 
+        #    ncatted --glb_att_add enkf=1 $i 
+        #done
+    fi
+
+    mv forecast_avg.nc forecast_avg.nc_tmp
+    echo 2nd ensave
+    mpirun -n "$NMEMBER" ./ensave forecast "$NMEMBER" || ( echo '2nd ensave error, exit...' ; exit 1 )
+    mv forecast_avg.nc analysis_avg.nc
+    mv forecast_avg.nc_tmp forecast_avg.nc
+    echo "FINISHED"
+}
+do_analysis (){
+        echo "Data assimulation at $yr $mm" >> $logfile
+        cd ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/
+
+        ## Link forecast data # need to include it, reduce external files
+        link_forecast ${yr} ${mm}
+
+        EnKF_CNT=0
+        for iobs in ${!OBSLIST[*]}; do
+            OBSTYPE=${OBSLIST[$iobs]}
+            PRODUCER=${PRODUCERLIST[$iobs]}
+            MONTHLY=${MONTHLY_ANOM[$iobs]}
+            REF_PERIOD=${REF_PERIODLIST[$iobs]}
+            COMB_ASSIM=${COMBINE_ASSIM[$iobs]}    #sequential/joint observation assim 
+            obsfile="${WORKSHARED}/Obs/${OBSTYPE}/${PRODUCER}/${yr}_${mm}.nc"
+            test -f "$obsfile" && ln -sf "$obsfile" ./  || { echo "${obsfile} not exist, we quit" ; exit 1 ; }
+            ## Uncertainty(?) Representive error file
+            uncfile=${WORKSHARED}/Input/NorESM/${RES}/${PRODUCER}/${RES}_${OBSTYPE}_obs_unc_${fforano}.nc
+            test -f "$uncfile" && ln -sf "$uncfile" ./obs_unc_${OBSTYPE}.nc || echo 'No unc file, maybe normal'
+
+            if (( ${ANOMALYASSIM} )) ; then
+                if (( ${MONTHLY} )) ; then ## monthly anomaly or yearly
+                    meanobs="${WORKSHARED}/Obs/${OBSTYPE}/${PRODUCER}/${OBSTYPE}_avg_${mm}-${REF_PERIOD}.nc"
+                    test -f ${meanobs} && ln -sf ${meanobs} mean_obs.nc || { echo "Error ${meanobs} missing, we quit" ; exit 1 ; }
+                    if ((${ANOM_CPL})) ; then
+                        anomcpl="${WORKSHARED}/Input/NorESM/${RES}/Anom-cpl-average${mm}-${REF_PERIOD}.nc"
+                        test -f "${anomcpl}" && ln -sf "${anomcpl}" mean_mod.nc || { echo "Error ${anomcpl} missing, we quit" ; exit 1 ; }
+                    else
+                        avgcpl="${WORKSHARED}/Input/NorESM/${RES}/Free-average${mm}-${REF_PERIOD}.nc"
+                        test -f "${avgcpl}" && ln -sf "${avgcpl}" mean_mod.nc || { echo "Error ${avgcpl} missing, we quit" ; exit 1 ; }
+                    fi # ${ANOM_CPL}
+                else
+                    meanobs="${WORKSHARED}/Obs/${OBSTYPE}/${PRODUCER}/${OBSTYPE}_avg_${REF_PERIOD}.nc"
+                    test -f "${meanobs}" && ln -sf "${meanobs}" mean_obs.nc || { echo "Error ${meanobs} missing, we quit" ; exit 1 ; }
+                    if ((${ANOM_CPL})) ; then
+                        anomcpl="${WORKSHARED}/Input/NorESM/${RES}/Anom-cpl-average${REF_PERIOD}.nc "
+                        test -f "${anomcpl}" && ln -sf "${anomcpl}" mean_mod.nc || { echo "Error ${anomcpl} missing, we quit" ; exit 1 ; }
+                    else
+                        avgcpl="${WORKSHARED}/Input/NorESM/${RES}/Free-average${REF_PERIOD}.nc"
+                        test -f "${avgcpl}" && ln -sf "${avgcpl}" mean_mod.nc || { echo "Error ${avgcpl} missing, we quit" ; exit 1 ; }
+                    fi # ${ANOM_CPL}
+                fi # ${MONTHLY}
+            fi # ${ANOMALYASSIM}
+
+            ### Prepare obs data, determine how data read.
+            template=${WORKSHARED}/Input/EnKF/infile.data.${OBSTYPE}.${PRODUCER}
+            sed -e "s/yyyy/${yr}/" -e "s/mm/${mm}/" "$template" > infile.data
+            ./prep_obs || { echo "Error, prep_obs failed, we quit" ; exit 1 ; }
+            mv observations.uf observations.uf_${OBSTYPE}.${PRODUCER}
+
+            if (( ${COMB_ASSIM} )) ; then #do assimilation
+                let EnKF_CNT=EnKF_CNT+1 || true
+                cat observations.uf_* > observations.uf
+                rm -f observations.uf_*
+                # only pbs_enkf.sh_V1_mal adapted to FRAM
+                echo "${ANALYSIS_FIELDS[$(($EnKF_CNT-1))]}" >  analysisfields.in
+                sed -e 's/^  *//' -i analysisfields.in
+                echo "${ENKF_PRM[$(($EnKF_CNT-1))]}" > enkf.prm
+
+                #launch EnKF
+                echo "  logfile: ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/pbs_enkf.log"
+                pbs_enkf > pbs_enkf.log 2>&1
+
+                ## Check output
+                cd ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}
+                test -f enkf_diag.nc    && mv enkf_diag.nc enkf_diag_${EnKF_CNT}.nc
+                test -f analysis_avg.nc && mv analysis_avg.nc analysis_avg_${EnKF_CNT}.nc
+                test -f forecast_avg.nc && mv forecast_avg.nc forecast_avg_${EnKF_CNT}.nc
+                test -f tmpX5.uf        && mv tmpX5.uf tmpX5_${EnKF_CNT}.uf
+                echo 'Finished with EnKF; call number :' $EnKF_CNT
+            fi # ${COMB_ASSIM}
+        done # iobs, loop along OBS
+
+        ## Move to RESULT
+        mkdir -p  ${NORCPM_RUNDIR}/${RESULT_DIRNAME}/${yr}_${mm} || { echo "Could not create RESULT/${yr}_${mm}" ; exit 1 ; }
+
+        cd ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/
+        test -z "$(ls  enkf_diag_*.nc 2>/dev/null)"|| mv enkf_diag_*.nc analysis_avg_*.nc forecast_avg_*.nc observations-*.nc tmpX5_*.uf ${NORCPM_RUNDIR}/${RESULT_DIRNAME}/${yr}_${mm}
+        rm -f FINITO
+        echo 'Finished all EnKF; now post processing'
+
+        ## apply result to restart file with micom_ensemble_init
+        if [ -z "$skip_micom_ensemble_init" ] ; then
+            cd ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/
+            echo Try to run micom_ensemble_init...
+            if [ -z "$(grep micom_ensemble_init forecast001.nc)" ] ; then
+                for i in {1..10}; do  ## retry if failed
+                    echo run micom_ensemble_init $i
+                    mpirun -n ${ALL_OCN_NTASK} ./micom_ensemble_init ${NMEMBER}        \
+                        && ncatted --glb_att_add micom_ensemble_init=1 forecast001.nc  \
+                        && break || { echo "micom_ensemble_init error, retry." ; }
+                    test "$i" -lt '10' || (echo micom_ensemble_init error, exit ; exit 1)
+                done
+                mpirun -n ${NMEMBER} ./ensave forecast ${NMEMBER} || { echo "ensave error, exit..." ; exit 1 ; }
+                wait
+
+                mv forecast_avg.nc ${NORCPM_RUNDIR}/${RESULT_DIRNAME}/${yr}_${mm}/fix_analysis_avg.nc
+                ans=$(diff ${NORCPM_RUNDIR}/${RESULT_DIRNAME}/${yr}_${mm}/fix_analysis_avg.nc ${NORCPM_RUNDIR}/${RESULT_DIRNAME}/${yr}_${mm}/analysis_avg_${EnKF_CNT}.nc || true)
+                if [ -z "${ans}" ] ; then
+                    echo "There has been no fix update, we quit!!"
+                    echo "Delete FINITO"
+                    rm -f FINITO
+                    exit 1;
+                else
+                    echo 
+                    true
+                fi
+            fi
+        fi
+
+        #Do some clean up
+        rm -f  forecast???.nc forecast_ice???.nc aiceold???.nc viceold???.nc
+        rm -f observations.uf enkf.prm* infile.data* mask.nc mask_ice.nc
+        echo 'Finished with Assim post-processing'
+        #every pair month we reduced rfactor by 1
+        if (( $mm % 2 == 0 )) ; then
+           let RFACTOR=RFACTOR-1 || true
+           test $RFACTOR -lt 1 && RFACTOR=1 || echo 'RFACTOR test'
+        fi
+}
+
+nowDateMEM () {
+    ## output variables: NOWDATE, STARTMONTH, STARTYEAR, STARTDAY, short_start_date
+    local mem=$(printf "%2.2d" $1)
+    NOWDATE=$(cat ${NORCPM_RUNDIR}/${CASENAME}_${MEMTAG}${mem}/run/rpointer.ocn| sed 's/.*\.r\.\(....-..-..-.....\)\.nc */\1/')
+    echo "DATE: $mem $NOWDATE"
+        short_start_date=`echo $NOWDATE | cut -c1-10`
+        STARTMONTH=`echo $NOWDATE | cut -c6-7`
+        STARTYEAR=`echo $NOWDATE | cut -c1-4` 
+        STARTDAY=`echo $NOWDATE | cut -c9-10` 
+}
+## Increase stack size
+ulimit -s unlimited
+
+#### Copy execuable binaries.
+copybins
+
+## ALL_OCN_NTASK = OCN_NTASK * NMEMBER
+#### Do not edit it.
+OCN_NTASK=63 ## depended on dimension.F complied with micom_ensemble_init 
+ALL_OCN_NTASK=$(( $OCN_NTASK * $NMEMBER ))
+
+## Check present model restart date
+nowDateMEM 1  ## output variables: NOWDATE, STARTMONTH, STARTYEAR, STARTDAY, short_start_date
+
+## for do_analysis
+yr=$STARTYEAR
+mm=$STARTMONTH
+
+## Intergation to day of data assimulation.
+if [ "${STARTDAY}" -ne "${ASSIMULATEMONTHDAY}" ] ; then
+    ## Check how many days to run.
+    if [ "${STARTDAY}" -gt ${ASSIMULATEMONTHDAY} ] ; then
+        ## need run to next month, not ready yet
+        echo "Please check restart day: ${STARTDAY}, should be ${ASSIMULATEMONTHDAY}"
+        exit 1
+    else
+        let runNDay=${ASSIMULATEMONTHDAY}-${STARTDAY} || true
+    fi
+    ## set run time and update namelists
+    xmlc_allmember "STOP_N=$runNDay","STOP_OPTION=nday"
+
+    ## run member01, which also run other members
+    runmodel || (echo 'Intergate one month failed, exit...' ; exit 1)
+    source ${envfile} 
+
+    #### short term archiving
+    #echo 'Archiving.'
+    st_archive_allmember
+fi
+
+
+## Do data assimulation and intergation 1 month, until ENDYEAR+1
+ncycle=0
+for cycle in $(seq $RESTART) ;do
+    loopStart=$(date +%s)
+    nowDateMEM 1  ## output variables: NOWDATE, STARTMONTH, STARTYEAR, STARTDAY, short_start_date
+    if [ $SKIPASSIM -eq 0 ] ;then  ## not skip first data assimulation
+        do_analysis $yr $mm
+    else
+        SKIPASSIM=0
+    fi  ## SKIPASSIM
+
+    if [ $SKIPPROP -eq 0 ];then  ## not skip first model run
+        ## Integrate NorESM for a month
+        xmlc_allmember "STOP_N=1","STOP_OPTION=nmonth"
+        #### Run model
+        echo 'Intergate one month.'
+        nowDateMEM 1  ## output variables: NOWDATE, STARTMONTH, STARTYEAR, STARTDAY, short_start_date
+        OLDDATE=$NOWDATE
+        runmodel
+        wait
+        nowDateMEM 1  ## output variables: NOWDATE, STARTMONTH, STARTYEAR, STARTDAY, short_start_date
+        source ${envfile}
+        if [ "$NOWDATE" == "$OLDDATE" ]; then
+            echo 'Intergate one month failed'
+        fi
+        MEMDATE_WRONG=''
+        NOWDATE1=$NOWDATE
+        for mem in $(seq -w $(($MEM01 + 1)) $NMEMBER) ; do
+            nowDateMEM $mem  ## output variables: NOWDATE, STARTMONTH, STARTYEAR, STARTDAY, short_start_date
+            if [ "$NOWDATE" != "$NOWDATE1" ]; then
+                MEMDATE_WRONG="${MEMDATE_WRONG}${CASENAME}_${MEMTAG}${mem}=${NOWDATE}"
+            fi
+            if [ ! -z "${MEMDATE_WRONG}" ];then
+                echo 'Intergate one month failed, not all members consistant, exit...'
+                echo "${MEMDATE_WRONG}"
+                exit 1
+            fi
+        done
+        echo "Intergate one month done. $NEWDATE" >> ${logfile}
+        xmlc_allmember 'CONTINUE_RUN=True'
+
+        #### short term archiving
+        echo "Archiving. $NEWDATE" >> ${logfile}
+        st_archive_allmember
+    else
+        SKIPPROP=0
+    fi
+
+    loopEnd=$(date +%s)
+    let looptime=$loopEnd-$loopStart || true
+    ## check rest time to run next loop, or self submit and end. 
+    let loopNextEnd=$looptime+$(date +%s) || true
+    let ncycle=$ncycle+1 || true
+
+    if [ $TEST -ge 1 ] && [ $ncycle -ge 2 ];then
+        echo "This is the second assim cycle everything has run smoothly"
+        echo "To run the full reanalysis, turn off the TEST flag in setting/personal_setting.sh"
+        exit 1;
+    fi
+
+    if [ $queEnd -gt $loopNextEnd ] ; then ## still have time to finish next loop
+        echo "This round cost $looptime sec. Start next round"
+        continue
+    else
+        #echo "Submit myself and end this round."
+        #module -q purge
+        #cd "$NowPWD"
+        #test ! -z "$SELFRESUBMIT" && sbatch "${SCRIPTPATH}"
+        echo "Time not enough for next cycle, exit..."
+        echo "last cycle time: ${looptime} sec."
+        exit 0
+    fi
+done
+echo "All ${RESTART} cycle done. Congratulations!!"
