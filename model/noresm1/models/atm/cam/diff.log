@@ -1,0 +1,1696 @@
+diff -r src/chemistry/mozart/mo_extfrc.F90 /cluster/projects/nn9039k/people/ingo/NorCPM/Backup/NorCPM-CF/model/norcpm-cf-system1/models/atm/cam/src/chemistry/mozart/mo_extfrc.F90
+210a211
+> 
+289,292d289
+< #if defined (AERLIFE)
+<     use mo_chem_utls,  only : get_extfrc_ndx, get_spc_ndx
+<     use chem_mods,     only : adv_mass
+< #endif
+312,321d308
+< #if defined (AERLIFE)
+<     character(len=50):: spc_name
+<     integer          :: spc_ndx
+< !   aFactor takes into account a larger OM/OC ratio for biomass burning OC 
+< !   (i.e. OM/OC=2.6 instead of 1.4, as in Kirkevåg et al., 2013, based on 
+< !    Formenti et al., J. Geophys. Res., 108, 8488, 2003). 
+<     real(r8)         :: aFactor,moleccm2_to_kgm2 
+< #else 
+<     real(r8)         :: aFactor 
+< #endif
+333,335d319
+< #if defined (AERLIFE)
+<     real(r8), parameter :: om_to_oc = 1.4_r8
+< #endif
+343c327
+<     !-------------------------------------------------------
+---
+>     !--------------------------------------------------------
+367,384c351
+< #if (defined AERLIFE)
+<           if((trim(forcings(m)%sectors(isec)).eq."forestfire".or.trim(forcings(m)%sectors(isec)).eq."grassfire") &
+<             .and.forcings(m)%species.eq."OM_NI")then
+<             aFactor = 2.6_r8/1.4_r8
+< !           write(iulog,*) 'alt 3d emission sector = ',
+< !           trim(forcings(m)%sectors(isec)) 
+<           else
+<             aFactor = 1.0_r8
+<           end if
+< #else 
+<           aFactor = 1.0_r8
+< #endif
+<           if (forcings(m)%file%alt_data) then
+<              frcing(:ncol,:,n) = frcing(:ncol,:,n) + forcings(m)%fields(isec)%data(:ncol,pver:1:-1,lchnk) * aFactor
+<           else
+<              frcing(:ncol,:,n) = frcing(:ncol,:,n) + forcings(m)%fields(isec)%data(:ncol,:,lchnk) * aFactor
+<           endif
+< 
+---
+>           frcing(:ncol,:,n) = frcing(:ncol,:,n) + forcings(m)%fields(isec)%data(:ncol,pver:1:-1,lchnk)
+419,426d385
+< !Scale factor to go from OC ==> OM when using OSLO aerosols
+< #if ( defined AERLIFE )
+<        select case( forcings(m)%species )
+<        case( 'OM_NI' )
+<           frcing(:ncol,:,n) = frcing(:ncol,:,n) * om_to_oc
+<        end select
+< #endif
+< 
+428d386
+< !      WRITE(*,*) 'DEBUG extfrc_set: write ',trim(xfcname),ncol, lchnk
+431,435d388
+< #ifdef AERLIFE
+<        spc_name = trim(forcings(m)%species)
+<        spc_ndx = get_spc_ndx(trim(spc_name))
+<        moleccm2_to_kgm2=1.0e4_r8/6.022e23_r8*adv_mass(spc_ndx)*1.e-3_r8 
+< #endif
+438,446c391,392
+< #if defined(AERLIFE)
+< ! CMIP6 convert forcing from [molecule/cm3/s] to [kg/m2/s]
+<          frcing(:ncol,k,n) = frcing(:ncol,k,n)*(zint(:ncol,k)-zint(:ncol,k+1))*km_to_cm*moleccm2_to_kgm2
+<          frcing_col(:ncol) = frcing_col(:ncol) + frcing(:ncol,k,n)
+< #else 
+<          frcing_col(:ncol) = frcing_col(:ncol) + frcing(:ncol,k,n)*(zint(:ncol,k)-zint(:ncol,k+1))*km_to_cm
+< #endif
+<        enddo 
+< 
+---
+>           frcing_col(:ncol) = frcing_col(:ncol) + frcing(:ncol,k,n)*(zint(:ncol,k)-zint(:ncol,k+1))*km_to_cm
+>        enddo
+448,463d393
+< #if defined(AERLIFE)
+< !      WRITE(*,*) 'DEBUG extfrc_set: write ',trim(xfcname),ncol, lchnk
+< !      WRITE(*,*) 'DEBUG frcing_col:',frcing_col(:ncol)
+< !      WRITE(*,*) 'DEBUG moleccm2_to_kgm2:',moleccm2_to_kgm2
+< 
+<        !redefine to kg/m2/s if oslo aerosols
+< !      spc_name = trim(forcings(m)%species)
+< !      spc_ndx = get_spc_ndx(trim(spc_name))
+<        !It makes more sense to output in kg/m2/s to compare with other terms
+< !      frcing_col(:ncol) = frcing_col(:ncol)     &
+< !                          *1.0e4_r8             &   !molec/cm2 ==> molec/m2
+< !                          /6.02e23_r8           &   !==> mole/m2
+< !                          *adv_mass(spc_ndx)    &   !==> g/m2
+< !                          *1.e-3_r8                 !==>> kg/m2
+< #endif
+< 
+diff -r src/chemistry/mozart/mo_gas_phase_chemdr.F90 /cluster/projects/nn9039k/people/ingo/NorCPM/Backup/NorCPM-CF/model/norcpm-cf-system1/models/atm/cam/src/chemistry/mozart/mo_gas_phase_chemdr.F90
+1031,1033d1030
+< #ifdef CMIP6
+<     call set_srf_emissions( lchnk, sflx(:,:), ncol )
+< #else
+1035d1031
+< #endif
+diff -r src/chemistry/mozart/mo_srf_emissions.F90 /cluster/projects/nn9039k/people/ingo/NorCPM/Backup/NorCPM-CF/model/norcpm-cf-system1/models/atm/cam/src/chemistry/mozart/mo_srf_emissions.F90
+1,362d0
+< #if CMIP6 
+< #define OSLO_AERO 
+< module mo_srf_emissions
+<   !---------------------------------------------------------------
+<   ! 	... surface emissions module
+<   !---------------------------------------------------------------
+< 
+<   use shr_kind_mod, only : r8 => shr_kind_r8
+<   use chem_mods,    only : gas_pcnst
+<   use spmd_utils,   only : masterproc,iam
+<   use mo_tracname,  only : solsym
+<   use abortutils,   only : endrun
+<   use ioFileMod,    only : getfil
+<   use ppgrid,       only : pcols, begchunk, endchunk
+<   use cam_history,  only : addfld, outfld, phys_decomp, add_default
+<   use cam_logfile,  only : iulog
+<   use tracer_data,  only : trfld,trfile
+< 
+<   implicit none
+< 
+<   type :: emission
+<      integer           :: spc_ndx
+<      real(r8)          :: mw
+<      character(len=256):: filename
+<      character(len=16) :: species
+<      character(len=8)  :: units
+<      integer                   :: nsectors
+<      character(len=32),pointer :: sectors(:)
+<      type(trfld), pointer      :: fields(:)
+<      type(trfile)              :: file
+<   end type emission
+< 
+<   private
+< 
+<   public  :: srf_emissions_inti, set_srf_emissions, set_srf_emissions_time 
+< 
+<   save
+< 
+<   !real(r8), parameter :: amufac = 1.65979e-23_r8         ! 1.e4* kg / amu
+<   real(r8), parameter :: amufac = 1.66e-23_r8         ! 1.e4* kg / amu
+<   logical :: has_emis(gas_pcnst)
+<   type(emission), allocatable :: emissions(:)
+<   integer                     :: n_emis_species 
+<   integer :: c10h16_ndx, isop_ndx
+< 
+< contains
+< 
+<   subroutine srf_emissions_inti( srf_emis_specifier, emis_type, emis_cycle_yr, emis_fixed_ymd, emis_fixed_tod )
+< 
+<     !-----------------------------------------------------------------------
+<     ! 	... initialize the surface emissions
+<     !-----------------------------------------------------------------------
+< 
+<     use chem_mods,        only : adv_mass
+<     use mo_constants,     only : d2r, pi, rearth
+<     use string_utils,     only : to_upper
+<     use mo_chem_utls,     only : get_spc_ndx 
+<     use tracer_data,      only : trcdata_init
+<     use cam_pio_utils,    only : cam_pio_openfile
+<     use pio,              only : pio_inquire, pio_nowrite, pio_closefile, pio_inq_varndims
+<     use pio,              only : pio_inq_varname, file_desc_t
+< 
+< 
+<     use chem_surfvals, only : flbc_list
+< 
+< 
+<     implicit none
+< 
+<     !-----------------------------------------------------------------------
+<     ! 	... dummy arguments
+<     !-----------------------------------------------------------------------
+<     character(len=*), intent(in) :: srf_emis_specifier(:)
+<     character(len=*), intent(in) :: emis_type
+<     integer,          intent(in) :: emis_cycle_yr
+<     integer,          intent(in) :: emis_fixed_ymd
+<     integer,          intent(in) :: emis_fixed_tod
+< 
+<     !-----------------------------------------------------------------------
+<     ! 	... local variables
+<     !-----------------------------------------------------------------------
+<     integer  :: astat
+<     integer  :: j, l, m, n, i, nn                     ! Indices
+<     character(len=16)  :: spc_name
+<     character(len=256) :: filename
+< 
+<     character(len=16)  ::    emis_species(gas_pcnst)
+<     character(len=256) ::    emis_filenam(gas_pcnst)
+<     integer ::    emis_indexes(gas_pcnst)
+< 
+<     integer :: vid, nvars, isec
+<     integer, allocatable :: vndims(:)
+<     type(file_desc_t) :: ncid
+<     character(len=32)  :: varname
+<     character(len=256) :: locfn
+<     integer :: ierr
+<     character(len=1), parameter :: filelist = ''
+<     character(len=1), parameter :: datapath = ''
+<     logical         , parameter :: rmv_file = .false.
+< 
+<     has_emis(:) = .false.
+<     nn = 0
+< 
+<     count_emis: do n=1,gas_pcnst
+<        if ( len_trim(srf_emis_specifier(n) ) == 0 ) then
+<           exit count_emis
+<        endif
+< 
+<        i = scan(srf_emis_specifier(n),'->')
+<        spc_name = trim(adjustl(srf_emis_specifier(n)(:i-1)))
+<        filename = trim(adjustl(srf_emis_specifier(n)(i+2:)))
+<        m = get_spc_ndx(spc_name)
+< 
+<        if (m > 0) then
+<           has_emis(m) = .true.
+<           has_emis(m) = has_emis(m) .and. ( .not. any( flbc_list == spc_name ) )
+<        else 
+<           write(iulog,*) 'srf_emis_inti: spc_name ',spc_name,' is not included in the simulation'
+<           call endrun('srf_emis_inti: invalid surface emission specification')
+<        endif
+< 
+<        if ( has_emis(m) ) then
+<           nn = nn+1
+<           emis_species(nn) = spc_name
+<           emis_filenam(nn) = filename
+<           emis_indexes(nn) = m
+<        endif
+<     enddo count_emis
+< 
+<     n_emis_species = count(has_emis(:))
+< 
+<     if (masterproc) write(iulog,*) 'srf_emis_inti: n_emis_species = ',n_emis_species
+< 
+<     allocate( emissions(n_emis_species), stat=astat )
+<     if( astat/= 0 ) then
+<        write(iulog,*) 'srf_emis_inti: failed to allocate emissions array; error = ',astat
+<        call endrun
+<     end if
+< 
+<     !-----------------------------------------------------------------------
+<     ! 	... setup the emission type array
+<     !-----------------------------------------------------------------------
+<     do m=1,n_emis_species 
+<        emissions(m)%spc_ndx          = emis_indexes(m)
+<        emissions(m)%units            = 'Tg/y'
+<        emissions(m)%species          = emis_species(m)
+<        emissions(m)%mw               = adv_mass(emis_indexes(m))                     ! g / mole
+<        emissions(m)%filename         = emis_filenam(m)
+<     enddo
+< 
+<     !-----------------------------------------------------------------------
+<     ! read emis files to determine number of sectors
+<     !-----------------------------------------------------------------------
+<     spc_loop: do m = 1, n_emis_species
+< 
+<        emissions(m)%nsectors = 0
+<        
+<        call getfil (emissions(m)%filename, locfn, 0)
+<        call cam_pio_openfile ( ncid, trim(locfn), PIO_NOWRITE)
+<        ierr = pio_inquire (ncid, nvariables=nvars)
+< 
+<        allocate(vndims(nvars))
+< 
+<        do vid = 1,nvars
+< 
+<           ierr = pio_inq_varndims (ncid, vid, vndims(vid))
+< 
+<           if( vndims(vid) < 3 ) then
+<              cycle
+<           elseif( vndims(vid) > 3 ) then
+<              ierr = pio_inq_varname (ncid, vid, varname)
+<              write(iulog,*) 'srf_emis_inti: Skipping variable ', trim(varname),', ndims = ',vndims(vid), &
+<                   ' , species=',trim(emissions(m)%species)
+<              cycle
+<           end if
+< 
+<           emissions(m)%nsectors = emissions(m)%nsectors+1
+< 
+<        enddo
+< 
+<        allocate( emissions(m)%sectors(emissions(m)%nsectors), stat=astat )
+<        if( astat/= 0 ) then
+<          write(iulog,*) 'srf_emis_inti: failed to allocate emissions(m)%sectors array; error = ',astat
+<          call endrun
+<        end if
+< 
+<        isec = 1
+< 
+<        do vid = 1,nvars
+<           if( vndims(vid) == 3 ) then
+<              ierr = pio_inq_varname(ncid, vid, emissions(m)%sectors(isec))
+<              isec = isec+1
+<           endif
+< 
+<        enddo
+<        deallocate(vndims)
+<        call pio_closefile (ncid)
+< 
+<        call trcdata_init( emissions(m)%sectors, &
+<                           emissions(m)%filename, filelist, datapath, &
+<                           emissions(m)%fields,  &
+<                           emissions(m)%file, &
+<                           rmv_file, emis_cycle_yr, emis_fixed_ymd, emis_fixed_tod, emis_type )
+< 
+<           call addfld( trim(emissions(m)%species)//'_EMISRF',  'kg/m2/s', 1, 'A', &
+<                        'surface emission forcing for '//trim(emissions(m)%species),   phys_decomp ) 
+< 
+<     enddo spc_loop
+< 
+<   end subroutine srf_emissions_inti
+< 
+<   subroutine set_srf_emissions_time( state )
+<     !-----------------------------------------------------------------------
+<     !       ... check serial case for time span
+<     !-----------------------------------------------------------------------
+< 
+<     use physics_types,only : physics_state
+<     use ppgrid,       only : begchunk, endchunk
+<     use tracer_data,  only : advance_trcdata
+< 
+<     implicit none
+< 
+<     type(physics_state), intent(in):: state(begchunk:endchunk)                 
+< 
+<     !-----------------------------------------------------------------------
+<     !       ... local variables
+<     !-----------------------------------------------------------------------
+<     integer :: m
+< 
+<     do m = 1,n_emis_species
+<        call advance_trcdata( emissions(m)%fields, emissions(m)%file, state  )
+<     end do
+< 
+<   end subroutine set_srf_emissions_time
+< 
+<   ! adds surf flux specified in file to sflx
+<   subroutine set_srf_emissions( lchnk, sflx, ncol )
+<     !--------------------------------------------------------
+<     !	... form the surface fluxes for this latitude slice
+<     !--------------------------------------------------------
+< 
+<     use mo_constants, only : pi
+<     use time_manager, only : get_curr_calday
+<     use string_utils, only : to_lower, GLC
+< 
+<     implicit none
+< 
+< 
+<     !--------------------------------------------------------
+<     !	... Dummy arguments
+<     !--------------------------------------------------------
+<     integer,  intent(in)    :: ncol                  ! columns in chunk
+<     integer,  intent(in)    :: lchnk                 ! chunk index
+<     real(r8), intent(inout) :: sflx(pcols,gas_pcnst) ! surface emissions ( kg/m^2/s )
+< 
+<     !--------------------------------------------------------
+<     !	... local variables
+<     !--------------------------------------------------------
+<     integer  ::  i, m, n
+<     real(r8) ::  factor
+<     real(r8) ::  dayfrac            ! fration of day in light
+<     real(r8) ::  iso_off            ! time iso flux turns off
+<     real(r8) ::  iso_on             ! time iso flux turns on
+< 
+<     logical  :: polar_day,polar_night
+<     real(r8) :: doy_loc
+<     real(r8) :: sunon,sunoff
+<     real(r8) :: loc_angle
+<     real(r8) :: latitude
+<     real(r8) :: declination
+<     real(r8) :: tod
+<     real(r8) :: calday
+< 
+<     real(r8), parameter :: dayspy = 365._r8
+<     real(r8), parameter :: twopi = 2.0_r8 * pi
+<     real(r8), parameter :: pid2  = 0.5_r8 * pi
+<     real(r8), parameter :: dec_max = 23.45_r8 * pi/180._r8
+<     real(r8), parameter :: om_to_oc  = 1.4_r8
+< 
+<     real(r8) :: flux(ncol)
+<     real(r8) :: mfactor
+<     integer  :: isec
+< 
+<     character(len=12),parameter :: mks_units(4) = (/ "kg/m2/s     ", &
+<                                                      "kg/m2/sec   ", &
+<                                                      "kg/m^2/s    ", &
+<                                                      "kg/m^2/sec  " /)
+<     character(len=12) :: units
+<     real(r8) :: in_sflx(pcols,gas_pcnst) ! surface emissions ( kg/m^2/s )
+< 
+< #if (defined OSLO_AERO)
+<     real(r8) :: aFactor
+< #endif
+< 
+< 
+<     in_sflx(:,:) = 0._r8
+< 
+< 
+<     !--------------------------------------------------------
+<     !	... set non-zero emissions
+<     !--------------------------------------------------------
+<     emis_loop : do m = 1,n_emis_species
+< 
+<        n = emissions(m)%spc_ndx
+< 
+< #if (defined OSLO_AERO)
+< ! mulige sector_names, definert i nc-filene for utslipp selv: 
+< ! emiss_awb (OC agricultural waste burning emissions...)                            --> surface emiss.
+<        flux(:) = 0._r8
+<        do isec = 1,emissions(m)%nsectors
+< !cak          flux(:ncol) = flux(:ncol) + emissions(m)%fields(isec)%data(:ncol,1,lchnk)
+<           if(trim(emissions(m)%sectors(isec)).eq."emiss_awb".and.emissions(m)%species.eq."OM_NI")then
+<             aFactor = 2.6_r8/1.4_r8
+< !            write(iulog,*) 'emission sector = ', trim(emissions(m)%sectors(isec)) 
+<           else
+<             aFactor = 1.0_r8
+<           end if
+<           flux(:ncol) = flux(:ncol) + emissions(m)%fields(isec)%data(:ncol,1,lchnk)*aFactor
+<        enddo
+< #endif
+< 
+< #if (defined MODAL_AERO)
+<        select case( emissions(m)%species )
+<        case( 'SOAG' )
+<           flux(:ncol) = flux(:ncol) * om_to_oc
+<        case( 'pom_a1', 'pom_a3' ) ! for both 3-mode and 7-mode ? -- should be done offline!
+<           flux(:ncol) = flux(:ncol) * om_to_oc
+<        end select
+< #endif
+< #if (defined OSLO_AERO)
+<        select case( emissions(m)%species )
+<        case( 'OM_NI' )
+<           flux(:ncol) = flux(:ncol) * om_to_oc
+<        end select
+< #endif
+< 
+<        units = to_lower(trim(emissions(m)%fields(1)%units(:GLC(emissions(m)%fields(1)%units))))
+< 
+<        if ( any( mks_units(:) == units ) ) then
+<           if (  emissions(m)%species == 'ISOP' .or. emissions(m)%species == 'C10H16' ) then
+<              in_sflx(:ncol,n) = flux(:ncol)
+<           else
+<              sflx(:ncol,n) = sflx(:ncol,n) + flux(:ncol)  
+<           endif 
+<        else
+<           mfactor = amufac * emissions(m)%mw
+<           if (  emissions(m)%species == 'ISOP' .or. emissions(m)%species == 'C10H16' ) then
+<              in_sflx(:ncol,n) = flux(:ncol) * mfactor
+<           else
+<              sflx(:ncol,n) = sflx(:ncol,n) + flux(:ncol) * mfactor
+<           endif 
+<        endif
+< 
+<       ! write surface emissions to diagnostic output 
+<       call outfld( trim(emissions(m)%species)//'_EMISRF', sflx(:ncol,n), ncol, lchnk )
+< 
+<     end do emis_loop
+< 
+< 
+<   end subroutine set_srf_emissions
+< 
+< end module mo_srf_emissions
+< #else
+933d570
+< #endif 
+diff -r src/chemistry/pp_none/chemistry.F90 /cluster/projects/nn9039k/people/ingo/NorCPM/Backup/NorCPM-CF/model/norcpm-cf-system1/models/atm/cam/src/chemistry/pp_none/chemistry.F90
+10a11
+> #ifdef WACCM_GHG  
+12,17c13
+< #ifdef CMIP6
+<   use constituents,        only: pcnst
+<   use mo_extfrc,           only: extfrc_inti
+<   use mo_srf_emissions,    only: srf_emissions_inti
+< #endif
+< 
+---
+> #endif 
+54,66d49
+< #ifdef CMIP6
+<   character(len=shr_kind_cl) :: ext_frc_specifier(pcnst) = ''
+<   character(len=24)  :: ext_frc_type = 'CYCLICAL' ! 'CYCLICAL' | 'SERIAL' | 'INTERP_MISSING_MONTHS'
+<   integer            :: ext_frc_cycle_yr  = 0
+<   integer            :: ext_frc_fixed_ymd = 0
+<   integer            :: ext_frc_fixed_tod = 0
+< 
+<   character(len=shr_kind_cl) :: srf_emis_specifier(pcnst) = ''
+<   character(len=24)  :: srf_emis_type = 'CYCLICAL' ! 'CYCLICAL' | 'SERIAL' | 'INTERP_MISSING_MONTHS'
+<   integer            :: srf_emis_cycle_yr  = 0
+<   integer            :: srf_emis_fixed_ymd = 0
+<   integer            :: srf_emis_fixed_tod = 0
+< #endif
+109,116c92,95
+< #ifdef CMIP6
+<     namelist /chem_inparm/ & 
+<       & ext_frc_specifier, ext_frc_type, ext_frc_cycle_yr, ext_frc_fixed_ymd, ext_frc_fixed_tod, & 
+<       & srf_emis_specifier, srf_emis_type, srf_emis_cycle_yr, srf_emis_fixed_ymd, srf_emis_fixed_tod
+< #elif WACCM_GHG
+<     namelist /chem_inparm/ solar_parms_file 
+< #endif
+< #if defined(CMIP6) || defined(WACCM_GHG)
+---
+> 
+> #ifdef WACCM_GHG  
+>     namelist /chem_inparm/ solar_parms_file
+> 
+130d108
+< #endif 
+132c110
+< #ifdef WACCM_GHG
+---
+> #ifdef SPMD
+135,147d112
+< 
+< #ifdef CMIP6
+<     call mpibcast (ext_frc_specifier, len(ext_frc_specifier(1))*pcnst, mpichar, 0, mpicom)
+<     call mpibcast (ext_frc_type,      len(ext_frc_type),               mpichar, 0, mpicom)
+<     call mpibcast (ext_frc_cycle_yr,  1,                               mpiint, 0, mpicom)
+<     call mpibcast (ext_frc_fixed_ymd, 1,                               mpiint, 0, mpicom)
+<     call mpibcast (ext_frc_fixed_tod, 1,                               mpiint, 0, mpicom)
+< 
+<     call mpibcast (srf_emis_specifier, len(srf_emis_specifier(1))*pcnst, mpichar, 0, mpicom)
+<     call mpibcast (srf_emis_type,      len(srf_emis_type),               mpichar, 0, mpicom)
+<     call mpibcast (srf_emis_cycle_yr,  1,                               mpiint, 0, mpicom)
+<     call mpibcast (srf_emis_fixed_ymd, 1,                               mpiint, 0, mpicom)
+<     call mpibcast (srf_emis_fixed_tod, 1,                               mpiint, 0, mpicom)  
+149d113
+<     WRITE(*,*) 'DEBUG: leaving chem_readnl'
+193,195d156
+< #ifdef CMIP6
+<     use mo_tracname, only: solsym
+< #endif 
+200,205d160
+< #ifdef CMIP6
+<     write(*,*) 'DEBUG chem_init: call extfrc',ext_frc_specifier, ext_frc_type, ext_frc_cycle_yr, ext_frc_fixed_ymd, ext_frc_fixed_tod 
+<     solsym=(/ 'SO2     ','SO4_PR  ','BC_N    ','BC_AX   ', 'BC_NI   ','OM_NI   ' /)
+<     call extfrc_inti(ext_frc_specifier, ext_frc_type, ext_frc_cycle_yr, ext_frc_fixed_ymd, ext_frc_fixed_tod ) 
+<     call srf_emissions_inti ( srf_emis_specifier, srf_emis_type, srf_emis_cycle_yr, srf_emis_fixed_ymd, srf_emis_fixed_tod)
+< #endif 
+211,214d165
+< #ifdef CMIP6
+<     use mo_extfrc,    only: extfrc_timestep_init
+<     use mo_srf_emissions,  only : set_srf_emissions_time
+< #endif 
+218,221d168
+< #ifdef CMIP6
+<     call set_srf_emissions_time( phys_state )
+<     call extfrc_timestep_init( phys_state )
+< #endif 
+diff -r src/chemistry/pp_none/chem_mods.F90 /cluster/projects/nn9039k/people/ingo/NorCPM/Backup/NorCPM-CF/model/norcpm-cf-system1/models/atm/cam/src/chemistry/pp_none/chem_mods.F90
+13,15d12
+< #ifdef CMIP6
+<                             gas_pcnst = 6, & ! number of "gas phase" species
+< #else
+17d13
+< #endif
+22,24d17
+< #ifdef CMIP6
+<                             extcnt = 6, & ! number of species with external forcing
+< #else
+26d18
+< #endif
+41,43d32
+< #ifdef CMIP6
+<       real(r8) :: adv_mass(gas_pcnst) = (/64.064800_r8,98.078400_r8,12.011000_r8,12.011000_r8,12.011000_r8,12.011000_r8/)
+< #else
+45d33
+< #endif
+53,56d40
+< #ifdef CMIP6
+<       character(len=8) :: extfrc_lst(max(1,extcnt))=(/ 'SO2     ','SO4_PR  ','BC_N    ','BC_AX   ', 'BC_NI   ','OM_NI   ' /)
+<       logical :: frc_from_dataset(max(1,extcnt))=(/  .true., .true., .true., .true., .true., .true. /)
+< #else
+59d42
+< #endif
+61d43
+< 
+diff -r src/chemistry/utils/prescribed_volcaero.F90 /cluster/projects/nn9039k/people/ingo/NorCPM/Backup/NorCPM-CF/model/norcpm-cf-system1/models/atm/cam/src/chemistry/utils/prescribed_volcaero.F90
+27,29d26
+< #ifdef CMIP6
+<   public :: has_prescribed_volcaero_cmip6,solar_bands,terrestrial_bands
+< #endif 
+51,56d47
+< #ifdef CMIP6
+<   logical, save :: has_prescribed_volcaero_cmip6 = .false.
+<   integer, parameter :: solar_bands=14, terrestrial_bands=16
+<   character(len=256) :: locfn
+< #endif 
+< 
+66,70d56
+< #ifdef CMIP6
+<    use cam_pio_utils,   only : cam_pio_openfile, init_pio_subsystem
+<    use pio,             only : pio_inquire, file_desc_t, pio_inq_dimname
+<    use pio,             only : pio_nowrite, pio_closefile, pio_noerr
+< #endif 
+78,83d63
+< #ifdef CMIP6
+<    integer :: dimid,ndims
+<    type(file_desc_t) :: ncid
+<    character(len=80) :: dimname
+< #endif 
+< 
+159,180d138
+< #ifdef CMIP6
+<    ! Check if input file contains CMIP6 forcing   
+<    if (has_prescribed_volcaero) then
+<       if (len_trim(datapath) > 0 ) then
+<         locfn=trim(datapath)//'/'//trim(filename)
+<       else
+<         locfn=trim(filename)
+<       endif
+<       call init_pio_subsystem('atm_in')
+<       call cam_pio_openfile(ncid,locfn,PIO_NOWRITE)
+<       ierr = pio_inquire(ncid,ndimensions=ndims)
+<       do dimid=1,ndims
+<          ierr = pio_inq_dimname(ncid,dimid,dimname)
+<          if ( trim(dimname) == 'altitude' ) then
+<            has_prescribed_volcaero = .false.
+<            has_prescribed_volcaero_cmip6 = .true.
+<          endif
+<       enddo
+<       call pio_closefile(ncid)
+<    endif
+< #endif
+< 
+190,194d147
+< #ifdef CMIP6
+<     integer :: band
+<     character(len=3) :: c3
+< #endif 
+< 
+198,214d150
+< 
+<     endif
+< 
+< #ifdef CMIP6
+<     if (has_prescribed_volcaero_cmip6) then
+<        do band=1,solar_bands
+<          write(c3,'(i3)') band
+<          call pbuf_add('ext_sun'//trim(adjustl(c3)),'physpkg',1,pver,1,idx)
+<          call pbuf_add('omega_sun'//trim(adjustl(c3)),'physpkg',1,pver,1,idx)
+<          call pbuf_add('g_sun'//trim(adjustl(c3)),'physpkg',1,pver,1,idx)
+<        enddo 
+<        do band=1,terrestrial_bands
+<          write(c3,'(i3)') band
+<          call pbuf_add('ext_earth'//trim(adjustl(c3)),'physpkg',1,pver,1,idx)
+<          call pbuf_add('omega_earth'//trim(adjustl(c3)),'physpkg',1,pver,1,idx)
+<          call pbuf_add('g_earth'//trim(adjustl(c3)),'physpkg',1,pver,1,idx)
+<        enddo 
+216d151
+< #endif 
+235,240d169
+< 
+< #ifdef CMIP6
+<     integer :: band, n
+<     character(len=3) :: c3
+<     character(len=32) :: specifier_cmip6(3*(solar_bands+terrestrial_bands))
+< #endif 
+242,244d170
+< #ifdef CMIP6
+<     if ( has_prescribed_volcaero .or. has_prescribed_volcaero_cmip6 ) then
+< #else
+246d171
+< #endif 
+254,258d178
+< #ifdef CMIP6
+<     ! non-CMIP6
+<     if ( has_prescribed_volcaero ) then
+< #endif 
+< 
+271,300c191
+<     radius_ndx = pbuf_get_fld_idx(volcrad_name, failcode=-1)
+< 
+< #ifdef CMIP6
+<     else
+< 
+<     do band=1,solar_bands
+<        write(c3,'(i3)') band
+<        specifier_cmip6(band*3-2) = 'ext_sun'//trim(adjustl(c3))//':'//'ext_sun'//trim(adjustl(c3))
+<        specifier_cmip6(band*3-1) = 'omega_sun'//trim(adjustl(c3))//':'//'omega_sun'//trim(adjustl(c3))
+<        specifier_cmip6(band*3-0) = 'g_sun'//trim(adjustl(c3))//':'//'g_sun'//trim(adjustl(c3))
+<        call addfld('ext_sun'//trim(adjustl(c3)),'1/km', pver, 'I', 'Extinction coefficient of solar bands', phys_decomp )
+<        call addfld('omega_sun'//trim(adjustl(c3)),'1', pver, 'I', 'Single scattering albedo of solar bands', phys_decomp )
+<        call addfld('g_sun'//trim(adjustl(c3)),'1', pver, 'I', 'Asymmetry factor of solar bands', phys_decomp )
+<     enddo
+<     do band=1,terrestrial_bands
+<        write(c3,'(i3)') band
+<        specifier_cmip6((solar_bands+band)*3-2) = 'ext_earth'//trim(adjustl(c3))//':'//'ext_earth'//trim(adjustl(c3))
+<        specifier_cmip6((solar_bands+band)*3-1) = 'omega_earth'//trim(adjustl(c3))//':'//'omega_earth'//trim(adjustl(c3))
+<        specifier_cmip6((solar_bands+band)*3-0) = 'g_earth'//trim(adjustl(c3))//':'//'g_earth'//trim(adjustl(c3))
+<        call addfld('ext_earth'//trim(adjustl(c3)),'1/km', pver, 'I', 'Extinction coefficient of terrestrial bands', phys_decomp )
+<        call addfld('omega_earth'//trim(adjustl(c3)),'1', pver, 'I', 'Single scattering albedo of terrestrial bands', phys_decomp )
+<        call addfld('g_earth'//trim(adjustl(c3)),'1', pver, 'I', 'Asymmetry factor of terrestrial bands', phys_decomp )
+<     enddo
+< 
+<     file%in_pbuf = .true.
+<     call trcdata_init( specifier_cmip6, filename, filelist, datapath, fields, file, &
+<                        rmv_file, cycle_yr, fixed_ymd, fixed_tod, data_type)
+< 
+<     endif 
+< #endif 
+---
+>     radius_ndx = pbuf_get_fld_idx(volcrad_name, failcode=-1 )
+341,347d231
+< #ifdef CMIP6
+<     ! CMIP6
+<     integer :: band 
+<     character(len=3) :: c3
+< 
+<     if ( .not. (has_prescribed_volcaero .or. has_prescribed_volcaero_cmip6) ) return
+< #else 
+349d232
+< #endif
+353,357d235
+< #ifdef CMIP6
+<     ! non-CMIP6
+<     if ( has_prescribed_volcaero ) then
+< #endif
+< 
+402,467d279
+< 
+< #ifdef CMIP6
+<     ! CMIP6 
+<     else 
+< 
+<     do c = begchunk,endchunk
+<        call tropopause_find(state(c), tropLev, primary=TROP_ALG_TWMO, backup=TROP_ALG_CLIMATE)
+<        ncol = state(c)%ncol
+<        do band=1,solar_bands
+<           write(c3,'(i3)') band
+<           data => pbuf(fields(band*3-2)%pbuf_ndx)%fld_ptr(1,:,:,c,1)
+<           do i = 1,ncol
+<              data(i,:)=data(i,pver:1:-1) ! flip data as workaround for bug in tracer_data.F90  
+<              do k = 1,pver
+<                 if ( k >= tropLev(i) ) data(i,k) = 0._r8
+<              enddo
+<           enddo
+<           call outfld('ext_sun'//trim(adjustl(c3)),data(:,:), pcols, state(c)%lchnk)
+<           data => pbuf(fields(band*3-1)%pbuf_ndx)%fld_ptr(1,:,:,c,1)
+<           do i = 1,ncol
+<              data(i,:)=data(i,pver:1:-1) ! flip data as workaround for bug in tracer_data.F90  
+<              do k = 1,pver
+<                 if ( k >= tropLev(i) ) data(i,k) = 0.999_r8
+<              enddo
+<           enddo
+<           call outfld('omega_sun'//trim(adjustl(c3)),data(:,:), pcols, state(c)%lchnk)
+<           data => pbuf(fields(band*3-0)%pbuf_ndx)%fld_ptr(1,:,:,c,1)
+<           do i = 1,ncol
+<              data(i,:)=data(i,pver:1:-1) ! flip data as workaround for bug in tracer_data.F90  
+<              do k = 1,pver
+<                 if ( k >= tropLev(i) ) data(i,k) = 0.5_r8
+<              enddo
+<           enddo
+<           call outfld('g_sun'//trim(adjustl(c3)),data(:,:), pcols, state(c)%lchnk)
+<        enddo
+<        do band=1,terrestrial_bands
+<           write(c3,'(i3)') band
+<           data => pbuf(fields((solar_bands+band)*3-2)%pbuf_ndx)%fld_ptr(1,:,:,c,1)
+<           do i = 1,ncol
+<              data(i,:)=data(i,pver:1:-1) ! flip data as workaround for bug in tracer_data.F90  
+<              do k = 1,pver
+<                 if ( k >= tropLev(i) ) data(i,k) = 0._r8
+<              enddo
+<           enddo
+<           call outfld('ext_earth'//trim(adjustl(c3)),data(:,:), pcols, state(c)%lchnk)
+<           data => pbuf(fields((solar_bands+band)*3-1)%pbuf_ndx)%fld_ptr(1,:,:,c,1)
+<           do i = 1,ncol
+<              data(i,:)=data(i,pver:1:-1) ! flip data as workaround for bug in tracer_data.F90  
+<              do k = 1,pver
+<                 if ( k >= tropLev(i) ) data(i,k) = 0.999_r8
+<              enddo
+<           enddo
+<           call outfld('omega_earth'//trim(adjustl(c3)),data(:,:), pcols, state(c)%lchnk)
+<           data => pbuf(fields((solar_bands+band)*3-0)%pbuf_ndx)%fld_ptr(1,:,:,c,1)
+<           do i = 1,ncol
+<              data(i,:)=data(i,pver:1:-1) ! flip data as workaround for bug in tracer_data.F90  
+<              do k = 1,pver
+<                 if ( k >= tropLev(i) ) data(i,k) = 0.5_r8
+<              enddo
+<           enddo
+<           call outfld('g_earth'//trim(adjustl(c3)),data(:,:), pcols, state(c)%lchnk)
+<        enddo 
+<     enddo 
+< 
+<     endif 
+< #endif
+diff -r src/physics/cam/comsrf.F90 /cluster/projects/nn9039k/people/ingo/NorCPM/Backup/NorCPM-CF/model/norcpm-cf-system1/models/atm/cam/src/physics/cam/comsrf.F90
+39c39
+<   public trefmxav, trefmnav, u10mxav
+---
+>   public trefmxav, trefmnav
+56d55
+<   real(r8), allocatable:: u10mxav(:,:)   ! diagnostic: u10 max over the day
+118d116
+<        allocate (u10mxav(pcols,begchunk:endchunk))
+137d134
+<        u10mxav (:,:) = -1.0e36_r8
+diff -r src/physics/cam_oslo/advnce.F90 /cluster/projects/nn9039k/people/ingo/NorCPM/Backup/NorCPM-CF/model/norcpm-cf-system1/models/atm/cam/src/physics/cam_oslo/advnce.F90
+39d38
+< #ifdef CMIP6
+43d41
+< #endif 
+61d58
+< #ifdef CMIP6
+65d61
+< #endif
+diff -r src/physics/cam_oslo/cam_diagnostics.F90 /cluster/projects/nn9039k/people/ingo/NorCPM/Backup/NorCPM-CF/model/norcpm-cf-system1/models/atm/cam/src/physics/cam_oslo/cam_diagnostics.F90
+170a171,172
+>    call addfld ('Z925    ','m       ',1,    'A','Geopotential Z at 925 mbar pressure surface',phys_decomp)
+>    call addfld ('Z850    ','m       ',1,    'A','Geopotential Z at 850 mbar pressure surface',phys_decomp)
+172a175
+>    call addfld ('Z400    ','m       ',1,    'A','Geopotential Z at 400 mbar pressure surface',phys_decomp)
+174d176
+<    call addfld ('Z250    ','m       ',1,    'A','Geopotential Z at 250 mbar pressure surface',phys_decomp)
+177a180
+>    call addfld ('Z030    ','m       ',1,    'A','Geopotential Z at 30 mbar pressure surface',phys_decomp)
+207a211,212
+>    call addfld ('T1000      ','K     ',1,   'A','Temperature at 1000 mbar pressure surface',phys_decomp)
+>    call addfld ('T925    ','K       ',1,    'A','Temperature at 925 mbar pressure surface',phys_decomp)
+208a214
+>    call addfld ('T700    ','K       ',1,    'A','Temperature at 700 mbar pressure surface',phys_decomp)
+209a216
+>    call addfld ('T400    ','K       ',1,    'A','Temperature at 400 mbar pressure surface',phys_decomp)
+211a219,221
+>    call addfld ('T100    ','K       ',1,    'A','Temperature at 100 mbar pressure surface',phys_decomp)
+>    call addfld ('T050    ','K       ',1,    'A','Temperature at 50 mbar pressure surface',phys_decomp)
+>    call addfld ('T030    ','K       ',1,    'A','Temperature at 30 mbar pressure surface',phys_decomp)
+212a223,224
+>    call addfld ('Q1000      ','kg/kg ',1,   'A','Specific Humidity at 1000 mbar pressure surface',phys_decomp)   
+>    call addfld ('Q925    ','kg/kg   ',1,    'A','Specific Humidity at 925 mbar pressure surface',phys_decomp)
+213a226,229
+>    call addfld ('Q700    ','kg/kg   ',1,    'A','Specific Humidity at 700 mbar pressure surface',phys_decomp)
+>    call addfld ('Q500    ','kg/kg   ',1,    'A','Specific Humidity at 500 mbar pressure surface',phys_decomp)
+>    call addfld ('Q400    ','kg/kg   ',1,    'A','Specific Humidity at 400 mbar pressure surface',phys_decomp)
+>    call addfld ('Q300    ','kg/kg   ',1,    'A','Specific Humidity at 300 mbar pressure surface',phys_decomp)
+214a231,235
+>    call addfld ('Q100    ','kg/kg   ',1,    'A','Specific Humidity at 100 mbar pressure surface',phys_decomp)
+>    call addfld ('Q050    ','kg/kg   ',1,    'A','Specific Humidity at 50 mbar pressure surface',phys_decomp)
+>    call addfld ('Q030    ','kg/kg   ',1,    'A','Specific Humidity at 30 mbar pressure surface',phys_decomp)
+>    call addfld ('Q010    ','kg/kg   ',1,    'A','Specific Humidity at 10 mbar pressure surface',phys_decomp)
+>    call addfld ('U925    ','m/s     ',1,    'A','Zonal wind at 925 mbar pressure surface',phys_decomp)
+215a237,241
+>    call addfld ('U700    ','m/s     ',1,    'A','Zonal wind at 700 mbar pressure surface',phys_decomp)
+>    call addfld ('U500    ','m/s     ',1,    'A','Zonal wind at 500 mbar pressure surface',phys_decomp)
+>    call addfld ('U400    ','m/s     ',1,    'A','Zonal wind at 400 mbar pressure surface',phys_decomp)
+>    call addfld ('U300    ','m/s     ',1,    'A','Zonal wind at 300 mbar pressure surface',phys_decomp)
+>    call addfld ('U250    ','m/s     ',1,    'A','Zonal wind at 250 mbar pressure surface',phys_decomp)
+216a243,245
+>    call addfld ('U100    ','m/s     ',1,    'A','Zonal wind at 100 mbar pressure surface',phys_decomp)
+>    call addfld ('U050    ','m/s     ',1,    'A','Zonal wind at 50 mbar pressure surface',phys_decomp)
+>    call addfld ('U030    ','m/s     ',1,    'A','Zonal wind at 30 mbar pressure surface',phys_decomp)
+218,219c247
+<    call addfld ('U250    ','m/s     ',1,    'A','Zonal wind at 250 mbar pressure surface',phys_decomp)
+<    call addfld ('U500    ','m/s     ',1,    'A','Zonal wind at 500 mbar pressure surface',phys_decomp)
+---
+>    call addfld ('V925    ','m/s     ',1,    'A','Meridional wind at 925 mbar pressure surface',phys_decomp)
+221,222c249
+<    call addfld ('V200    ','m/s     ',1,    'A','Meridional wind at 200 mbar pressure surface',phys_decomp)
+<    call addfld ('V250    ','m/s     ',1,    'A','Meridional wind at 250 mbar pressure surface',phys_decomp)
+---
+>    call addfld ('V700    ','m/s     ',1,    'A','Meridional wind at 700 mbar pressure surface',phys_decomp)
+223a251,258
+>    call addfld ('V400    ','m/s     ',1,    'A','Meridional wind at 400 mbar pressure surface',phys_decomp)
+>    call addfld ('V300    ','m/s     ',1,    'A','Meridional wind at 300 mbar pressure surface',phys_decomp)
+>    call addfld ('V250    ','m/s     ',1,    'A','Meridional wind at 250 mbar pressure surface',phys_decomp)
+>    call addfld ('V200    ','m/s     ',1,    'A','Meridional wind at 200 mbar pressure surface',phys_decomp)
+>    call addfld ('V100    ','m/s     ',1,    'A','Meridional wind at 100 mbar pressure surface',phys_decomp)
+>    call addfld ('V050    ','m/s     ',1,    'A','Meridional wind at 50 mbar pressure surface',phys_decomp)
+>    call addfld ('V030    ','m/s     ',1,    'A','Meridional wind at 30 mbar pressure surface',phys_decomp)
+>    call addfld ('V010    ','m/s     ',1,    'A','Meridional wind at 10 mbar pressure surface',phys_decomp)
+234,238d268
+<    call addfld ('T1000      ','K     ',1,   'A','Temperature at 1000 mbar pressure surface',phys_decomp)
+<    call addfld ('T925       ','K     ',1,   'A','Temperature at 925 mbar pressure surface',phys_decomp)   
+<    call addfld ('T700       ','K     ',1,   'A','Temperature at 700 mbar pressure surface',phys_decomp)
+<    call addfld ('Q1000      ','kg/kg ',1,   'A','Specific Humidity at 1000 mbar pressure surface',phys_decomp)   
+<    call addfld ('Q925       ','kg/kg ',1,   'A','Specific Humidity at 925 mbar pressure surface',phys_decomp)
+314,328d343
+< #ifdef CMIP6
+<    call addfld ('EMI_SO2_VOLC','kg m-2 s-1  ',1,    'A','Emissions',phys_decomp)
+<    call addfld ('EMI_SO2_CMIP6','kg m-2 s-1  ',1,    'A','Emissions',phys_decomp)
+<    call addfld ('EMI_SO4_CMIP6','kg m-2 s-1  ',1,    'A','Emissions',phys_decomp)
+<    call addfld ('EMI_BC_AIR ','kg m-2 s-1  ',1,    'A','Emissions',phys_decomp)
+<    call addfld ('EMI_BC_N   ','kg m-2 s-1  ',1,    'A','Emissions',phys_decomp)
+<    call addfld ('EMI_BC_NI  ','kg m-2 s-1  ',1,    'A','Emissions',phys_decomp)
+<    call addfld ('EMI_BC_AX  ','kg m-2 s-1  ',1,    'A','Emissions',phys_decomp)
+<    call addfld ('EMI_BC_CMIP6','kg m-2 s-1  ',1,    'A','Emissions',phys_decomp)
+<    call addfld ('EMI_BC_N_CMIP6','kg m-2 s-1  ',1,    'A','Emissions',phys_decomp)
+<    call addfld ('EMI_BC_NI_CMIP6','kg m-2 s-1  ',1,    'A','Emissions',phys_decomp)
+<    call addfld ('EMI_BC_AX_CMIP6','kg m-2 s-1  ',1,    'A','Emissions',phys_decomp)
+<    call addfld ('EMI_POM_CMIP6','kg m-2 s-1  ',1,    'A','Emissions',phys_decomp)
+< #endif
+< 
+350,353d364
+< #ifdef CMIP6
+<    call addfld ('AODVVOLC','unitless',1,    'A','CMIP6 volcanic aerosol optical depth at 0.442-0.625um',phys_decomp) ! CAM4-Oslo: 0.35-0.64um
+<    call addfld ('ABSVVOLC','unitless',1,    'A','CMIP6 volcanic aerosol absorptive optical depth at 0.442-0.625um',phys_decomp) ! CAM4-Oslo: 0.35-0.64um
+< #endif 
+590,593d600
+< #ifdef CMIP6
+<    call add_default ('AODVVOLC', 1, ' ')
+<    call add_default ('ABSVVOLC', 1, ' ')
+< #endif
+840a848
+>    call addfld ('PRECS   ','m/s     ',1,    'A','Snow rate (water equivalent)'                                       ,phys_decomp)
+851,852c859,861
+<    call add_default ('PRECSL  ', 1, ' ')
+<    call add_default ('PRECSC  ', 1, ' ')
+---
+>    call add_default ('PRECS   ', 1, ' ')
+>    !call add_default ('PRECSL  ', 1, ' ')
+>    !call add_default ('PRECSC  ', 1, ' ')
+862a872
+>    call addfld ('TDEW    ','K       ',1,    'A','Reference height dew point temperature',phys_decomp)
+877d886
+<    call addfld ('U10MXAV ','K       ',1,    'A','Average of U10 daily maximum',phys_decomp)
+893,896d901
+<    call add_default ('ASDIR   ', 1, ' ')
+<    call add_default ('ASDIF   ', 1, ' ')
+<    call add_default ('ALDIR   ', 1, ' ')
+<    call add_default ('ALDIF   ', 1, ' ')
+902a908
+>    call add_default ('TDEW    ', 1, ' ')
+905d910
+<    call add_default ('U10MXAV', 1, ' ')  
+1235a1241,1248
+>     if (hist_fld_active('Z925')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 92500._r8, z3, p_surf)
+>        call outfld('Z925    ', p_surf, pcols, lchnk)
+>     end if
+>     if (hist_fld_active('Z850')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 85000._r8, z3, p_surf)
+>        call outfld('Z850    ', p_surf, pcols, lchnk)
+>     end if
+1244,1246c1257,1259
+<     if (hist_fld_active('Z250')) then
+<        call vertinterp(ncol, pcols, pver, state%pmid, 25000._r8, z3, p_surf)
+<        call outfld('Z250    ', p_surf, pcols, lchnk)
+---
+>     if (hist_fld_active('Z400')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 40000._r8, z3, p_surf)
+>        call outfld('Z400    ', p_surf, pcols, lchnk)
+1263a1277,1280
+>     if (hist_fld_active('Z030')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid,  3000._r8, z3, p_surf)
+>        call outfld('Z030    ', p_surf, pcols, lchnk)
+>     end if
+1410a1428,1431
+>     if (hist_fld_active('T700')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 70000._r8, state%t, p_surf)
+>        call outfld('T700    ', p_surf, pcols, lchnk )
+>     end if
+1414a1436,1439
+>     if (hist_fld_active('T400')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 40000._r8, state%t, p_surf)
+>        call outfld('T400    ', p_surf, pcols, lchnk )
+>     end if
+1422a1448,1459
+>     if (hist_fld_active('T100')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 10000._r8, state%t, p_surf)
+>        call outfld('T100    ', p_surf, pcols, lchnk )
+>     end if
+>     if (hist_fld_active('T050')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid,  5000._r8, state%t, p_surf)
+>        call outfld('T050    ', p_surf, pcols, lchnk )
+>     end if
+>     if (hist_fld_active('T030')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid,  3000._r8, state%t, p_surf)
+>        call outfld('T030    ', p_surf, pcols, lchnk )
+>     end if
+1430a1468,1483
+>     if (hist_fld_active('Q700')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 70000._r8, state%q(1,1,1), p_surf)
+>        call outfld('Q700    ', p_surf, pcols, lchnk )
+>     end if
+>     if (hist_fld_active('Q500')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 50000._r8, state%q(1,1,1), p_surf)
+>        call outfld('Q500    ', p_surf, pcols, lchnk )
+>     end if
+>     if (hist_fld_active('Q400')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 40000._r8, state%q(1,1,1), p_surf)
+>        call outfld('Q400    ', p_surf, pcols, lchnk )
+>     end if
+>     if (hist_fld_active('Q300')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 30000._r8, state%q(1,1,1), p_surf)
+>        call outfld('Q300    ', p_surf, pcols, lchnk )
+>     end if
+1434a1488,1507
+>     if (hist_fld_active('Q100')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 10000._r8, state%q(1,1,1), p_surf)
+>        call outfld('Q100    ', p_surf, pcols, lchnk )
+>     end if
+>     if (hist_fld_active('Q050')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid,  5000._r8, state%q(1,1,1), p_surf)
+>        call outfld('Q050    ', p_surf, pcols, lchnk )
+>     end if
+>     if (hist_fld_active('Q030')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid,  3000._r8, state%q(1,1,1), p_surf)
+>        call outfld('Q030    ', p_surf, pcols, lchnk )
+>     end if
+>     if (hist_fld_active('Q010')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid,  1000._r8, state%q(1,1,1), p_surf)
+>        call outfld('Q010    ', p_surf, pcols, lchnk )
+>     end if
+>     if (hist_fld_active('U925')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 92500._r8, state%u, p_surf)
+>        call outfld('U925    ', p_surf, pcols, lchnk )
+>     end if
+1438a1512,1515
+>     if (hist_fld_active('U700')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 70000._r8, state%u, p_surf)
+>        call outfld('U700    ', p_surf, pcols, lchnk )
+>     end if
+1442a1520,1527
+>     if (hist_fld_active('U400')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 40000._r8, state%u, p_surf)
+>        call outfld('U400    ', p_surf, pcols, lchnk )
+>     end if
+>     if (hist_fld_active('U300')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 30000._r8, state%u, p_surf)
+>        call outfld('U300    ', p_surf, pcols, lchnk )
+>     end if
+1450a1536,1547
+>     if (hist_fld_active('U100')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 10000._r8, state%u, p_surf)
+>        call outfld('U100    ', p_surf, pcols, lchnk )
+>     end if
+>     if (hist_fld_active('U050')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 5000._r8, state%u, p_surf)
+>        call outfld('U050    ', p_surf, pcols, lchnk )
+>     end if
+>     if (hist_fld_active('U030')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 3000._r8, state%u, p_surf)
+>        call outfld('U030    ', p_surf, pcols, lchnk )
+>     end if
+1452c1549
+<        call vertinterp(ncol, pcols, pver, state%pmid,  1000._r8, state%u, p_surf)
+---
+>        call vertinterp(ncol, pcols, pver, state%pmid, 1000._r8, state%u, p_surf)
+1454a1552,1555
+>     if (hist_fld_active('V925')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 92500._r8, state%v, p_surf)
+>        call outfld('V925    ', p_surf, pcols, lchnk )
+>     end if
+1458a1560,1563
+>     if (hist_fld_active('V700')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 70000._r8, state%v, p_surf)
+>        call outfld('V700    ', p_surf, pcols, lchnk )
+>     end if
+1462a1568,1575
+>     if (hist_fld_active('V400')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 40000._r8, state%v, p_surf)
+>        call outfld('V400    ', p_surf, pcols, lchnk )
+>     end if
+>     if (hist_fld_active('V300')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 30000._r8, state%v, p_surf)
+>        call outfld('V300    ', p_surf, pcols, lchnk )
+>     end if
+1470a1584,1599
+>     if (hist_fld_active('V100')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 10000._r8, state%v, p_surf)
+>        call outfld('V100    ', p_surf, pcols, lchnk )
+>     end if
+>     if (hist_fld_active('V050')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 5000._r8, state%v, p_surf)
+>        call outfld('V050    ', p_surf, pcols, lchnk )
+>     end if
+>     if (hist_fld_active('V030')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 3000._r8, state%v, p_surf)
+>        call outfld('V030    ', p_surf, pcols, lchnk )
+>     end if
+>     if (hist_fld_active('V010')) then
+>        call vertinterp(ncol, pcols, pver, state%pmid, 1000._r8, state%v, p_surf)
+>        call outfld('V010    ', p_surf, pcols, lchnk )
+>     end if
+1681a1811
+>    call outfld('PRECS   ', snowc+snowl, pcols, lchnk )
+1735c1865
+< subroutine diag_surf (cam_in, cam_out, ps, trefmxav, trefmnav, u10mxav)
+---
+> subroutine diag_surf (cam_in, cam_out, ps, trefmxav, trefmnav )
+1756d1885
+<     real(r8), intent(inout) :: u10mxav(pcols) ! daily maximum 10m wind speed
+1794a1924,1931
+> !
+> ! Calculate and output reference height dew point temperature (TDEW)
+> ! using the Magnus formula with coefficients b = 17.67, c = 243.5 (Bolton 1980,
+> ! Monthly Waether Review) 
+>        ftem(:ncol) = log(ftem(:ncol)/100._r8) + 17.67_r8 *  &
+>          (cam_in%tref(:ncol) - 273.15_r8) / (cam_in%tref(:ncol) - 29.65_r8) 
+>        ftem(:ncol) = 243.5_r8 * ftem(:ncol) / (17.67_r8 - ftem(:ncol)) + 273.15_r8
+>     call outfld('TDEW',   ftem,      pcols, lchnk)
+1814d1950
+<        u10mxav(i) = max(cam_in%u10(i),u10mxav(i))
+1819d1954
+<        call outfld('U10MXAV', u10mxav,pcols,   lchnk     )
+1822d1956
+<        u10mxav(:ncol) = -1.0e36_r8
+diff -r src/physics/cam_oslo/condtend.F90 /cluster/projects/nn9039k/people/ingo/NorCPM/Backup/NorCPM-CF/model/norcpm-cf-system1/models/atm/cam/src/physics/cam_oslo/condtend.F90
+61,65d60
+< #ifdef CONDFIX
+<    real(r8) :: n_so4_monolayers_age
+<    real(r8) :: dr_so4_monolayers_age 
+<    real(r8) :: area_core,volume_shell,volume_monolayer,frac_transfer
+< #endif 
+70,77d64
+< 
+< #ifdef CONDFIX  
+< ! thickness of the so4 monolayers (m)
+< ! for so4(+nh4), use bi-sulfate mw and 1.77 g/cm3 as in MAM
+<    ! Assumed number of monolayers
+<     n_so4_monolayers_age = 3.0_r8
+<     dr_so4_monolayers_age = n_so4_monolayers_age * 4.76e-10_r8
+< #endif
+95c82
+<    end do
+---
+>    end do	
+202,204d188
+< #ifdef CONDFIX
+<           dotend(l_bc_ax)=.true.
+< #endif 
+212,219d195
+< #ifdef CONDFIX
+< !                h2so4new(i,k)=q(i,k,l_h2so4)*exp(-condh2so4(i,k)*dt)
+< !                dh2so4(i,k)=(q(i,k,l_h2so4)-h2so4new(i,k))/dt
+< ! OS 061015 Replaced Euler forward with Euler backward                
+< ! Old forward h2so4new(i,k)=loch2so4(i,k)-condh2so4(i,k)*dt*loch2so4(i,k)
+<                    
+<                 h2so4new(i,k)=loch2so4(i,k)/(1._r8+condh2so4(i,k)*dt)
+< #else 
+224,225c200,201
+<                 h2so4new(i,k)=max(h2so4new(i,k),0._r8)
+< #endif 
+---
+> 	        h2so4new(i,k)=max(h2so4new(i,k),0._r8)
+> !                dh2so4(i,k)=(q(i,k,l_h2so4)-h2so4new(i,k))/dt
+228,277d203
+< 
+< 
+< #ifdef CONDFIX 
+< !              mode number 0, bc_ax
+< 
+<                area_core= nrmodes(i,k,l_bc_ax)*normnsurf(0) 
+<                volume_shell=dt*condbcax(i,k)*h2so4new(i,k)/rhopart(l_so4_a1)
+<                volume_monolayer=area_core*dr_so4_monolayers_age
+<                frac_transfer=min((volume_shell/max(volume_monolayer,1.e-30_r8)),0.999_r8)
+<                dqdt(i,k,l_bc_ax)=-frac_transfer*q(i,k,l_bc_ax)/dt
+< 
+< !              mode 1 so4_n
+<              
+<                area_core= nrmodes(i,k,l_so4_n)*normnsurf(1) 
+<                volume_shell=dt*conds4(i,k)*h2so4new(i,k)/rhopart(l_so4_a1)
+<                volume_monolayer=area_core*dr_so4_monolayers_age
+<                frac_transfer=min((volume_shell/max(volume_monolayer,1.e-30_r8)),0.999_r8)
+<                dqdt(i,k,l_so4_n)=(h2so4new(i,k)-frac_transfer*q(i,k,l_so4_n))/dt
+<                dqdt(i,k,l_so4_na)=frac_transfer*q(i,k,l_so4_n)/dt
+< 
+< !              mode 2 bc_n
+< 
+<                area_core= nrmodes(i,k,l_bc_n)*normnsurf(2) 
+<                volume_shell=dt*condbc(i,k)*h2so4new(i,k)/rhopart(l_so4_a1)
+<                volume_monolayer=area_core*dr_so4_monolayers_age
+<                frac_transfer=min((volume_shell/max(volume_monolayer,1.e-30_r8)),0.999_r8)
+<                dqdt(i,k,l_bc_n)=-frac_transfer*q(i,k,l_bc_n)/dt
+< 
+< 
+< !               dqdt(i,k,l_bc_a)=-dqdt(i,k,l_bc_ax)-dqdt(i,k,l_bc_n)
+< ! OS 161015 Started by converting bc_ax into bc_a since both are fossil fuel.
+< ! bc_a on the other hand has bc_n as basis thus too small. Moved into bc_ai
+< 
+<                dqdt(i,k,l_bc_a)=-dqdt(i,k,l_bc_n)
+< 
+< 
+< ! Mode 3   bc_ni+om_ni
+< 
+<                area_core= (nrmodes(i,k,l_bc_ni)+nrmodes(i,k,l_om_ni))*normnsurf(3) 
+<                volume_shell=dt*condbcom(i,k)*h2so4new(i,k)/rhopart(l_so4_a1)
+<                volume_monolayer=area_core*dr_so4_monolayers_age
+<                frac_transfer=min((volume_shell/max(volume_monolayer,1.e-30_r8)),0.999_r8)
+<                dqdt(i,k,l_bc_ni)=-frac_transfer*q(i,k,l_bc_ni)/dt
+<                dqdt(i,k,l_bc_ai)=-dqdt(i,k,l_bc_ni)-dqdt(i,k,l_bc_ax)
+< 
+<                dqdt(i,k,l_om_ni)=-frac_transfer*q(i,k,l_om_ni)/dt
+<                dqdt(i,k,l_om_ai)=-dqdt(i,k,l_om_ni)
+< 
+< #else 
+< 
+281,282c207,208
+<         
+< !               dqdt(i,k,l_h2so4)=-dh2so4(i,k)-h2so4new(i,k)/dt
+---
+> 	        
+> !	        dqdt(i,k,l_h2so4)=-dh2so4(i,k)-h2so4new(i,k)/dt
+294,295c220
+<         
+< #endif 
+---
+> 	       
+Only in src/physics/cam_oslo: condtend.F90_HAPPI
+Only in src/physics/cam_oslo: condtend.F90_ORIG
+diff -r src/physics/cam_oslo/constants.F90 /cluster/projects/nn9039k/people/ingo/NorCPM/Backup/NorCPM-CF/model/norcpm-cf-system1/models/atm/cam/src/physics/cam_oslo/constants.F90
+25d24
+< 
+33,37d31
+< #ifdef CONDFIX
+<         normnsurf(0) = 4.0_r8*pi*(effsize(l_bc_ax)**2)*  &
+<           DEXP(log(sgpart(l_bc_ax)**2))
+< #endif
+< 
+41,45d34
+< #ifdef CONDFIX
+<         normnsurf(1) = 4.0_r8*pi*(effsize(l_so4_n)**2)*  &
+<           DEXP(log(sgpart(l_so4_n)**2))
+< #endif
+< 
+49,53d37
+< #ifdef CONDFIX
+<         normnsurf(2) = 4.0_r8*pi*(effsize(l_bc_n)**2)*  &
+<           DEXP(log(sgpart(l_bc_n)**2))
+< #endif
+< 
+57,61d40
+< #ifdef CONDFIX
+<         normnsurf(3) = 4.0_r8*pi*(effsize(l_om_ni)**2)*  &
+<           DEXP(log(sgpart(l_om_ni)**2))
+< #endif
+< 
+65,69d43
+< #ifdef CONDFIX
+<         normnsurf(4) = 4.0_r8*pi*(effsize(l_om_ni)**2)*  &
+<           DEXP(log(sgpart(l_om_ni)**2))
+< #endif
+< 
+72,77c46
+<         rhob(5)  = 1841.0_r8           
+< #ifdef CONDFIX
+<         normnsurf(5) = 4.0_r8*pi*(effsize(l_so4_pr)**2)*  &
+<           DEXP(log(sgpart(l_so4_pr)**2))
+< #endif
+<         
+---
+>         rhob(5)  = 1841.0_r8                   
+81,85d49
+< #ifdef CONDFIX
+<         normnsurf(6) = 4.0_r8*pi*(effsize(l_dst_a2)**2)*  &
+<           DEXP(log(sgpart(l_dst_a2)**2))
+< #endif
+< 
+89,93d52
+< #ifdef CONDFIX
+<         normnsurf(7) = 4.0_r8*pi*(effsize(l_dst_a3)**2)*  &
+<           DEXP(log(sgpart(l_dst_a3)**2))
+< #endif
+< 
+97,101d55
+< #ifdef CONDFIX
+<         normnsurf(8) = 4.0_r8*pi*(effsize(l_ss_a1)**2)*  &
+<           DEXP(log(sgpart(l_ss_a1)**2))
+< #endif
+< 
+105,109d58
+< #ifdef CONDFIX
+<         normnsurf(9) = 4.0_r8*pi*(effsize(l_ss_a3)**2)*  &
+<           DEXP(log(sgpart(l_ss_a2)**2))
+< #endif
+< 
+113,117d61
+< #ifdef CONDFIX
+<         normnsurf(10) = 4.0_r8*pi*(effsize(l_ss_a3)**2)*  &
+<           DEXP(log(sgpart(l_ss_a3)**2))
+< #endif
+< 
+169,172d112
+< #ifdef CONDFIX 
+<            normnk(kcomp,i) =4._r8*pi*dlogr*nk(kcomp,i)
+< #else 
+< ! Bug in calculation of condensation
+174d113
+< #endif
+Only in src/physics/cam_oslo: constants.F90_HAPPI
+Only in src/physics/cam_oslo: constants.F90_ORIG
+diff -r src/physics/cam_oslo/const.F90 /cluster/projects/nn9039k/people/ingo/NorCPM/Backup/NorCPM-CF/model/norcpm-cf-system1/models/atm/cam/src/physics/cam_oslo/const.F90
+110,113d109
+< #ifdef CONDFIX
+< !     New for calculation of condensation transfer from external to internal mixture
+< 	real(r8),dimension(0:10) :: normnsurf
+< #endif    
+Only in src/physics/cam_oslo: const.F90_HAPPI
+Only in src/physics/cam_oslo: const.F90_ORIG
+diff -r src/physics/cam_oslo/emissions.F90 /cluster/projects/nn9039k/people/ingo/NorCPM/Backup/NorCPM-CF/model/norcpm-cf-system1/models/atm/cam/src/physics/cam_oslo/emissions.F90
+18c18
+<    use ppgrid,      only: pcols, pver, begchunk, endchunk 
+---
+>    use ppgrid,      only: pcols, pver, begchunk, endchunk
+147c147
+<   hgrid = get_resolution()
+---
+> 
+156c156
+<       fnemis_air(1)='inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP85_bcair_150513_1850-2100.nc'
+---
+>       fnemis_air(1)='inputdata/atm/cam/camoslo/emissions/IPCC_emiss_bcair_1850-2005.nc'
+172c172
+<       fnemis_air(1)='inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP85_bcair_150513_1850-2100.nc'
+---
+>       fnemis_air(1)='inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP85_bcair_1850-2100.nc'
+189c189
+<       fnemis_air(1)='inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP85_bcair_f09_041113_1850-2100.nc'
+---
+>       fnemis_air(1)='inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP85_bcair_f09_1850-2100.nc'
+207c207
+<       fnemis_air(1)='inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP45_bcair_150513_1850-2100.nc'
+---
+>       fnemis_air(1)='inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP45_bcair_1850-2100.nc'
+225c225
+<       fnemis_air(1)='inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP26_bcair_150513_1850-2100.nc'
+---
+>       fnemis_air(1)='inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP26_bcair_1850-2100.nc'
+231,247d230
+< 
+<   if(trim(hgrid)=='0.9x1.25') then
+<       fnemis_ff(1)='/work/shared/noresm/inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP26_so2ff_f09_1850-2100.nc'
+<       field_ff(1)='emiss_so2'
+<       fnemis_bb(1)='/work/shared/noresm/inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP26_so2bb_f09_1850-2100.nc'
+<       field_bb(1)='emiss_so2_bb'
+<       fnemis_ff(2)='/work/shared/noresm/inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP26_bcff_f09_1850-2100.nc'
+<       field_ff(2)='emiss_bc'
+<       fnemis_bb(2)='/work/shared/noresm/inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP26_bcbb_f09_1850-2100.nc'
+<       field_bb(2)='emiss_bc_bb'
+<       fnemis_air(1)='/work/shared/noresm/inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP26_bcair_f09_1850-2100.nc'
+<       field_air(1)='emiss_bc'
+<       fnemis_ff(3)='/work/shared/noresm/inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP26_pomff_f09_1850-2100.nc'
+<       field_ff(3)='emiss_pom'
+<       fnemis_bb(3)='/work/shared/noresm/inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP26_pombb_f09_1850-2100.nc'
+<       field_bb(3)='emiss_pom_bb'
+<   end if
+259c242
+<       fnemis_air(1)='inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP60_bcair_150513_1850-2100.nc'
+---
+>       fnemis_air(1)='inputdata/atm/cam/camoslo/emissions/IPCC_emiss_RCP60_bcair_1850-2100.nc'
+339a323
+> 
+355,357d338
+< #ifdef CMIP6
+<    use ppgrid, only : begchunk, endchunk, pver
+< #endif
+359a341
+> 
+505c487
+< #if defined(AER1850) || defined(AERYR1850)
+---
+> #ifdef AERYR1850
+508c490
+< #if defined(AER2000) || defined(AERYR2000)
+---
+> #ifdef AERYR2000
+821d802
+< 
+823d803
+< 
+852d831
+< 
+1041c1020
+<    
+---
+> 
+1260c1239
+<  implicit none
+---
+> 
+1275,1276c1254,1255
+<           emyear=max(yr,1850)
+<           emyear=min(emyear,2100)
+---
+>       emyear=max(yr,1850)
+>       emyear=min(emyear,2100)
+1278c1257
+< #if defined(AER1850) || defined(AERYR1850)
+---
+> #ifdef AERYR1850
+1281c1260
+< #if defined(AER2000) || defined(AERYR2000)
+---
+> #ifdef AERYR2000
+1292,1294c1271
+< #ifdef CMIP6
+<    subroutine getem(state,lchnk, ncol,&
+< #else 
+---
+> 
+1296d1272
+< #endif
+1304,1311d1279
+< #ifdef CMIP6
+<    use physics_types,only : physics_state
+<    use mo_extfrc, only : extfrc_set
+<    use mo_srf_emissions,  only : set_srf_emissions
+<    use chem_mods, only : extcnt, gas_pcnst
+<    use physconst, only : rga
+< #endif
+< 
+1314,1318d1281
+< #ifdef CMIP6
+<    type(physics_state), intent(in)    :: state
+< #endif
+< 
+< 
+1368,1376d1330
+< #ifdef CMIP6
+<    real(r8) :: sflx(ncol,gas_pcnst)
+<    real(r8) :: extfrc(ncol,pver,max(1,extcnt))
+<    real(r8), parameter :: m2km  = 1.e-3_r8
+<    real(r8) :: dqdt_cmip6(pcols,pver,ncnst)  ! Tracer tendency array
+<    real(r8) :: dqdt_bc_air(pcols,pver) 
+<    real(r8) :: dqdt_so2_volc(pcols,pver) 
+< #endif
+< 
+1380,1389d1333
+< #ifdef CMIP6
+<    dqdt_cmip6 = 0._r8
+<    sflx=0._r8  ! needed as BC_NI not set for surface
+<    call set_srf_emissions( lchnk, sflx(:,:), ncol )
+< 
+<    extfrc=0._r8
+<    call extfrc_set( lchnk, m2km * state%zi(:ncol,1:pver+1), extfrc, ncol )
+< #endif
+< 
+< 
+1435,1440c1379,1382
+< !             emsfactor(k) = gravit/pdel(i,k)
+< !             emcfactor(k) = gravit/pdel(i,k)
+< !             embfactor(k) = gravit/pdel(i,k)
+<               emsfactor(k) = gravit/(pdel(i,k)*(1._r8-q(i,k,1)))  ! use dry mass consistent with cmidry diagnostics (Ingo Bethke, 2018)  
+<               emcfactor(k) = emsfactor(k)
+<               embfactor(k) = emsfactor(k)
+---
+>               emsfactor(k) = gravit/pdel(i,k)
+>               emcfactor(k) = gravit/pdel(i,k)
+>               embfactor(k) = gravit/pdel(i,k)
+> !OS              emfactor(k) = mwdry*gravit/pdel(i,k)
+1449,1451c1391
+< #ifdef CMIP6
+<             dqdt_cmip6(i,k,l_om_ni) = (extfrc(i,k,6) + 1.96_r8*em_om_soa(i,k,lchnk,mth))  *emcfactor(k) 
+< #endif
+---
+> 
+1467,1474d1406
+< #ifdef CMIP6 
+< !         dqdt_cmip6(i,k,l_bc_n) = (extfrc(i,k,3) + fbcnff*em_bc_air(i,k,lchnk))*emcfactor(k) 
+<           dqdt_cmip6(i,k,l_bc_n) = extfrc(i,k,3) *emcfactor(k) ! aviation already included
+< !         dqdt_cmip6(i,k,l_bc_ax) = (extfrc(i,k,4) + fbcaxff*em_bc_air(i,k,lchnk))*emcfactor(k) 
+<           dqdt_cmip6(i,k,l_bc_ax) = extfrc(i,k,4) *emcfactor(k) ! aviation already included
+<           dqdt_cmip6(i,k,l_bc_ni) = extfrc(i,k,5)*emcfactor(k) 
+<           dqdt_bc_air(i,k) = em_bc_air(i,k,lchnk)*emcfactor(k) 
+< #endif
+1486,1489d1417
+< #ifdef CMIP6
+<            dqdt_cmip6(i,pver,l_om_ni)=dqdt_cmip6(i,pver,l_om_ni)+  &
+<            1.4_r8*76.5_r8*em_ss1oc(i,lchnk,day)*emcfactor(pver)
+< #endif
+1497,1501d1424
+< #ifdef CMIP6
+< !         dqdt_cmip6(i,k,l_so2) = (1._r8-s4fac)*(em_so2_volc(i,k,lchnk)+0.5_r8*extfrc(i,k,1))*emcfactor(k)
+<           dqdt_cmip6(i,k,l_so2) =0.5_r8* extfrc(i,k,1)*emcfactor(k) ! volcanoes already included
+<           dqdt_so2_volc(i,k) = (1._r8-s4fac)*em_so2_volc(i,k,lchnk)*emcfactor(k) 
+< #endif
+1505c1428
+<              0.5_r8*em_so2_bb(i,k,lchnk))*emcfactor(k)
+---
+>              0.5_r8*em_so2_bb(i,k,lchnk))*emsfactor(k)
+1507,1509d1429
+< #ifdef CMIP6
+<           dqdt_cmip6(i,k,l_so4_pr) = 0.5_r8*extfrc(i,k,2)*emcfactor(k)
+< #endif
+1530,1537c1450
+< #ifdef CMIP6
+< 	  dqdt_cmip6(i,pver,l_so2) = dqdt_cmip6(i,pver,l_so2) + 0.5_r8*sflx(i,1)*emsfactor(pver)
+< 	  dqdt_cmip6(i,pver,l_so4_pr) = dqdt_cmip6(i,pver,l_so4_pr) + 0.5_r8*sflx(i,2)*emsfactor(pver)
+< 	  dqdt_cmip6(i,pver,l_bc_n) = dqdt_cmip6(i,pver,l_bc_n) + sflx(i,3)*emsfactor(pver)
+< 	  dqdt_cmip6(i,pver,l_bc_ax) = dqdt_cmip6(i,pver,l_bc_ax) + sflx(i,4)*emsfactor(pver)
+< 	  dqdt_cmip6(i,pver,l_bc_ni) = dqdt_cmip6(i,pver,l_bc_ni) + sflx(i,5)*emsfactor(pver) ! should always be zero
+< 	  dqdt_cmip6(i,pver,l_om_ni) = dqdt_cmip6(i,pver,l_om_ni) + sflx(i,6)*emsfactor(pver)
+< #endif
+---
+> 
+1612,1617c1525
+< #ifdef CMIP6
+<         call cmidry( lchnk,ncol,pdel, q(:,:,1), dqdt_so2_volc, cmi)
+<         call outfld('EMI_SO2_VOLC',cmi,pcols,lchnk)         
+<         call cmidry( lchnk,ncol,pdel, q(:,:,1), dqdt_cmip6(:,:,l_so2), cmi)
+<         call outfld('EMI_SO2_CMIP6',cmi,pcols,lchnk)         
+< #endif 
+---
+> 
+1622,1627d1529
+< #ifdef CMIP6
+<         call cmidry( lchnk,ncol,pdel, q(:,:,1), dqdt(:,:,l_so4_n)+ & 
+<          dqdt(:,:,l_so4_na)+dqdt(:,:,l_so4_a1)+dqdt(:,:,l_so4_a2)+ &
+<          dqdt_cmip6(:,:,l_so4_pr)+dqdt(:,:,l_so4_ac), cmi)
+<         call outfld('EMI_SO4_CMIP6',cmi,pcols,lchnk)         
+< #endif 
+1633,1652d1534
+< #ifdef CMIP6
+<         call cmidry( lchnk,ncol,pdel, q(:,:,1), dqdt_bc_air, cmi)
+<         call outfld('EMI_BC_AIR',cmi,pcols,lchnk)         
+<         call cmidry( lchnk,ncol,pdel, q(:,:,1), dqdt(:,:,l_bc_n), cmi)
+<         call outfld('EMI_BC_N',cmi,pcols,lchnk)         
+<         call cmidry( lchnk,ncol,pdel, q(:,:,1), dqdt(:,:,l_bc_ni), cmi)
+<         call outfld('EMI_BC_NI',cmi,pcols,lchnk)         
+<         call cmidry( lchnk,ncol,pdel, q(:,:,1), dqdt(:,:,l_bc_ax), cmi)
+<         call outfld('EMI_BC_AX',cmi,pcols,lchnk)         
+<         call cmidry( lchnk,ncol,pdel, q(:,:,1), dqdt_cmip6(:,:,l_bc_n)+ &
+<         dqdt_cmip6(:,:,l_bc_ni)+dqdt(:,:,l_bc_a)+dqdt(:,:,l_bc_ai)+ &
+<         dqdt_cmip6(:,:,l_bc_ax)+dqdt(:,:,l_bc_ac), cmi)
+<         call outfld('EMI_BC_CMIP6',cmi,pcols,lchnk)         
+<         call cmidry( lchnk,ncol,pdel, q(:,:,1), dqdt_cmip6(:,:,l_bc_n), cmi)
+<         call outfld('EMI_BC_N_CMIP6',cmi,pcols,lchnk)         
+<         call cmidry( lchnk,ncol,pdel, q(:,:,1), dqdt_cmip6(:,:,l_bc_ni), cmi)
+<         call outfld('EMI_BC_NI_CMIP6',cmi,pcols,lchnk)         
+<         call cmidry( lchnk,ncol,pdel, q(:,:,1), dqdt_cmip6(:,:,l_bc_ax), cmi)
+<         call outfld('EMI_BC_AX_CMIP6',cmi,pcols,lchnk)         
+< #endif 
+1657,1661d1538
+< #ifdef CMIP6
+<         call cmidry( lchnk,ncol,pdel, q(:,:,1), dqdt_cmip6(:,:,l_om_ni)+ &
+<         dqdt(:,:,l_om_ai)+dqdt(:,:,l_om_ac), cmi)
+<         call outfld('EMI_POM_CMIP6',cmi,pcols,lchnk)         
+< #endif 
+1671,1679d1547
+< #ifdef CMIP6
+<         ! copy CMIP6 tendencies 
+<         dqdt(:,:,l_bc_n)=dqdt_cmip6(:,:,l_bc_n)
+<         dqdt(:,:,l_bc_ax)=dqdt_cmip6(:,:,l_bc_ax)
+<         dqdt(:,:,l_bc_ni)=dqdt_cmip6(:,:,l_bc_ni)
+<         dqdt(:,:,l_om_ni)=dqdt_cmip6(:,:,l_om_ni)
+<         dqdt(:,:,l_so2)=dqdt_cmip6(:,:,l_so2)
+<         dqdt(:,:,l_so4_pr)=dqdt_cmip6(:,:,l_so4_pr)
+< #endif 
+diff -r src/physics/cam_oslo/physpkg.F90 /cluster/projects/nn9039k/people/ingo/NorCPM/Backup/NorCPM-CF/model/norcpm-cf-system1/models/atm/cam/src/physics/cam_oslo/physpkg.F90
+870c870
+<    use comsrf,         only: trefmxav, trefmnav, sgh, sgh30, fsds, u10mxav
+---
+>    use comsrf,         only: trefmxav, trefmnav, sgh, sgh30, fsds 
+922,923c922
+<       call diag_surf(cam_in(c), cam_out(c), phys_state(c)%ps,trefmxav(1,c), trefmnav(1,c), & 
+<         u10mxav(1,c))
+---
+>       call diag_surf(cam_in(c), cam_out(c), phys_state(c)%ps,trefmxav(1,c), trefmnav(1,c))
+diff -r src/physics/cam_oslo/pmxsub.F90 /cluster/projects/nn9039k/people/ingo/NorCPM/Backup/NorCPM-CF/model/norcpm-cf-system1/models/atm/cam/src/physics/cam_oslo/pmxsub.F90
+5,8d4
+< #ifdef CMIP6
+<                   volc_ext_sun, volc_omega_sun, volc_g_sun, &
+<                   volc_ext_earth, volc_omega_earth, & 
+< #endif
+24d19
+<    use radconstants, only: nlwbands
+42,48d36
+< #ifdef CMIP6
+<    real(r8), intent(in) :: volc_ext_sun(pcols,1:pver,nbands) ! volcanic aerosol extinction for solar bands, CMIP6
+<    real(r8), intent(in) :: volc_omega_sun(pcols,1:pver,nbands) ! volcanic aerosol SSA for solar bands, CMIP6
+<    real(r8), intent(in) :: volc_g_sun(pcols,1:pver,nbands) ! volcanic aerosol g for solar bands, CMIP6
+<    real(r8), intent(in) :: volc_ext_earth(pcols,1:pver,nlwbands) ! volcanic aerosol extinction for terrestrial bands, CMIP6
+<    real(r8), intent(in) :: volc_omega_earth(pcols,1:pver,nlwbands) ! volcanic aerosol SSA for terrestrial bands, CMIP6
+< #endif
+73,76d60
+< #ifdef CMIP6
+<    real(r8) aodvisvolc(pcols)         ! AOD vis for CMIP6 volcanic aerosol
+<    real(r8) absvisvolc(pcols)         ! AAOD vis for CMIP6 volcanic aerosol
+< #endif 
+790,813d773
+< #ifdef CMIP6
+< !ak+   Adding also the volcanic contribution (CMIP6), which is using a CMIP6
+< !      band numbering identical to the AeroTab numbering (unlike CAM) both
+< !      for SW and LW. I.e., no remapping is required here.
+< !   Info from CMIP_CAM6_radiation_v3.nc
+< ! wl1_sun = 0.2, 0.263158, 0.344828, 0.441501, 0.625, 0.77821, 1.24224, 
+< !    1.2987, 1.62602, 1.94175, 2.15054, 2.5, 3.07692, 3.84615 ;
+< ! wl2_sun = 0.263158, 0.344828, 0.441501, 0.625, 0.77821, 1.24224, 1.2987, 
+< !    1.62602, 1.94175, 2.15054, 2.5, 3.07692, 3.84615, 12.1951 ;
+< ! wl1_earth = 3.07692, 3.84615, 4.20168, 4.44444, 4.80769, 5.55556, 6.75676, 
+< !    7.19424, 8.47458, 9.25926, 10.2041, 12.1951, 14.2857, 15.873, 20, 28.5714 ;
+< ! wl2_earth = 3.84615, 4.20168, 4.44444, 4.80769, 5.55556, 6.75676, 7.19424, 
+< !    8.47458, 9.25926, 10.2041, 12.1951, 14.2857, 15.873, 20, 28.5714, 1000 ;
+<       do ib=1,nbands
+<          betot(1:ncol,1:pver,ib) = betot(1:ncol,1:pver,ib) &
+<              + volc_ext_sun(1:ncol,1:pver,ib)
+<          ssatot(1:ncol,1:pver,ib) = ssatot(1:ncol,1:pver,ib) &
+<              + volc_ext_sun(1:ncol,1:pver,ib)*volc_omega_sun(1:ncol,1:pver,ib)
+<          asymtot(1:ncol,1:pver,ib) = asymtot(1:ncol,1:pver,ib) &
+<              + volc_ext_sun(1:ncol,1:pver,ib)*volc_omega_sun(1:ncol,1:pver,ib) &
+<               *volc_g_sun(1:ncol,1:pver,ib)
+<       enddo
+< !ak-  and then calculate the total bulk optical parameters
+< #endif
+925,928d884
+< #ifdef CMIP6
+<           aodvisvolc(icol)=0.0_r8
+<           absvisvolc(icol)=0.0_r8
+< #endif 
+957,961d912
+< #ifdef CMIP6
+<           aodvisvolc(icol)=aodvisvolc(icol)+volc_ext_sun(icol,k,4)*deltah
+<           absvisvolc(icol)=absvisvolc(icol)+volc_ext_sun(icol,k,4) &
+<                                 *(1.0_r8-volc_omega_sun(icol,k,4))*deltah
+< #endif
+1009,1012d959
+< #endif
+< #ifdef CMIP6
+<         call outfld('AODVVOLC',aodvisvolc ,pcols,lchnk)
+<         call outfld('ABSVVOLC',absvisvolc ,pcols,lchnk)
+diff -r src/physics/cam_oslo/radiation.F90 /cluster/projects/nn9039k/people/ingo/NorCPM/Backup/NorCPM-CF/model/norcpm-cf-system1/models/atm/cam/src/physics/cam_oslo/radiation.F90
+38,40d37
+< #ifdef CMIP6
+< use prescribed_volcaero, only: has_prescribed_volcaero,has_prescribed_volcaero_cmip6,solar_bands,terrestrial_bands
+< #else
+43d39
+< #endif
+64,66d59
+< #if defined(CMIP6) && defined(DIRIND)
+< integer :: volc_idx     = 0
+< #endif
+501d493
+< 
+580,584d571
+< #ifdef CMIP6
+<     real(r8) :: volc_fraction_coarse=0.0        ! Fraction of volcanic aerosols going to coarse mode
+<     integer :: band
+<     character(len=3) :: c3
+< #endif
+625,627d611
+< #ifdef CMIP6
+<     real(r8), pointer, dimension(:,:) :: volcopt    ! Read in stratospheric volcano SW optical parameter (CMIP6) 
+< #endif 
+749,755d732
+< #ifdef CMIP6
+<     real(r8) :: volc_ext_sun(pcols,pver,nswbands) ! volcanic aerosol extinction for solar bands, CMIP6
+<     real(r8) :: volc_omega_sun(pcols,pver,nswbands) ! volcanic aerosol SSA for solar bands, CMIP6
+<     real(r8) :: volc_g_sun(pcols,pver,nswbands) ! volcanic aerosol g for solar bands, CMIP6
+<     real(r8) :: volc_ext_earth(pcols,pver,nlwbands) ! volcanic aerosol extinction for terrestrial bands, CMIP6
+<     real(r8) :: volc_omega_earth(pcols,pver,nlwbands) ! volcanic aerosol SSA for terrestrial bands, CMIP6
+< #endif
+893,932d869
+< #ifdef CMIP6
+<    do band=1, solar_bands
+<      volc_ext_sun(1:ncol,1:pver,band)=0.0_r8
+<      volc_omega_sun(1:ncol,1:pver,band)=0.999_r8
+<      volc_g_sun(1:ncol,1:pver,band)=0.5_r8
+<    enddo
+<    if (has_prescribed_volcaero_cmip6) then
+<        do band=1, solar_bands
+<          write(c3,'(i3)') band
+<           volc_idx = pbuf_get_fld_idx('ext_sun'//trim(adjustl(c3))) 
+<       !rvolcmmr=>pbuf(ifld)%fld_ptr(1,1:pcols,1:pver,lchnk,1)  ! ib: copied by mistake? 
+<           volcopt=>pbuf(volc_idx)%fld_ptr(1,1:pcols,1:pver,lchnk,itim)
+<           volc_ext_sun(1:ncol,1:pver,band)=volcopt(1:ncol,1:pver)
+<           volc_idx = pbuf_get_fld_idx('omega_sun'//trim(adjustl(c3))) 
+<           volcopt=>pbuf(volc_idx)%fld_ptr(1,1:pcols,1:pver,lchnk,itim)
+<           volc_omega_sun(1:ncol,1:pver,band)=volcopt(1:ncol,1:pver)
+<           volc_idx = pbuf_get_fld_idx('g_sun'//trim(adjustl(c3))) 
+<           volcopt=>pbuf(volc_idx)%fld_ptr(1,1:pcols,1:pver,lchnk,itim)
+<           volc_g_sun(1:ncol,1:pver,band)=volcopt(1:ncol,1:pver)
+<        enddo
+<     endif
+< !  Volcanic optics for terrestrial (LW) bands (g is not used here)       
+<    do band=1, terrestrial_bands
+<      volc_ext_earth(1:ncol,1:pver,band)=0.0_r8
+<      volc_omega_earth(1:ncol,1:pver,band)=0.999_r8
+<    enddo
+<    if (has_prescribed_volcaero_cmip6) then
+<        do band=1, terrestrial_bands
+<          write(c3,'(i3)') band
+<           volc_idx = pbuf_get_fld_idx('ext_earth'//trim(adjustl(c3))) 
+<           volcopt=>pbuf(volc_idx)%fld_ptr(1,1:pcols,1:pver,lchnk,itim)
+<           volc_ext_earth(1:ncol,1:pver,band)=volcopt(1:ncol,1:pver)
+< 
+<           volc_idx = pbuf_get_fld_idx('omega_earth'//trim(adjustl(c3))) 
+<           volcopt=>pbuf(volc_idx)%fld_ptr(1,1:pcols,1:pver,lchnk,itim)
+<           volc_omega_earth(1:ncol,1:pver,band)=volcopt(1:ncol,1:pver)
+<        enddo
+<     endif
+< #endif 
+< 
+938,941d874
+< #ifdef CMIP6
+<                       volc_ext_sun, volc_omega_sun, volc_g_sun, & 
+<                       volc_ext_earth, volc_omega_earth, & 
+< #endif
+diff -r src/physics/cam_oslo/tphysbc.F90 /cluster/projects/nn9039k/people/ingo/NorCPM/Backup/NorCPM-CF/model/norcpm-cf-system1/models/atm/cam/src/physics/cam_oslo/tphysbc.F90
+302,304d301
+< #ifdef CMIP6
+<    call getem(state,lchnk,ncol,                                   &
+< #else
+306d302
+< #endif

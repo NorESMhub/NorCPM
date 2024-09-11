@@ -1,4 +1,0 @@
-#define QMPI
-#define ANOMALY
-#define LITTLE_ENDIAN
-#undef MASK_LANDNEIGHBOUR

@@ -1,4 +1,0 @@
-module --force purge
-module load StdEnv
-module load intel/2018a
-module load netCDF-Fortran/4.4.4-intel-2018a-HDF5-1.8.19

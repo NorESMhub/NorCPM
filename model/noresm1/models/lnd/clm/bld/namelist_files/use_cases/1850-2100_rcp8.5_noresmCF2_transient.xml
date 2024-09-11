@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+
+<namelist_defaults>
+
+<use_case_desc            >Simulate transient land-use, and aerosol deposition changes with historical data from 1850 to 2005 and then with the RCP8.5 scenario from MESSAGE
+</use_case_desc>
+<use_case_desc bgc="cn"   >Simulate transient land-use, aerosol and Nitrogen deposition changes with historical data from 1850 to 2005 and then with the RCP8.5 scenario from MESSAGE
+</use_case_desc>
+<use_case_desc bgc="cndv" >Simulate transient land-use, aerosol and Nitrogen deposition changes with historical data from 1850 to 2005 and then with the RCP8.5 scenario from MESSAGE
+</use_case_desc>
+
+<sim_year>1850</sim_year>
+
+<sim_year_range>1850-2100</sim_year_range>
+
+<rcp>8.5</rcp>
+
+<clm_demand >fpftdyn</clm_demand>
+
+<clm_start_type>startup</clm_start_type>
+
+<stream_year_first_ndep bgc="cn"   >1850</stream_year_first_ndep>
+<stream_year_last_ndep  bgc="cn"   >2100</stream_year_last_ndep>
+<model_year_align_ndep  bgc="cn"   >1850</model_year_align_ndep>
+
+<stream_year_first_ndep bgc="cndv" >1850</stream_year_first_ndep>
+<stream_year_last_ndep  bgc="cndv" >2100</stream_year_last_ndep>
+<model_year_align_ndep  bgc="cndv" >1850</model_year_align_ndep>
+
+<!-- Settings for datm and driver, for stand-alone testing -->
+<datm_presaero       mode="clm_stndln" >rcp8.5</datm_presaero>
+<orb_iyear           mode="clm_stndln" >1990</orb_iyear>
+<datm_cycle_beg_year mode="clm_stndln" >1972</datm_cycle_beg_year>
+<datm_cycle_end_year mode="clm_stndln" >2004</datm_cycle_end_year>
+
+
+<!-- NorESM specific values -->
+
+<!-- Urban air conditioning/heating and wasteheat -->
+<urban_hac hgrid="48x96"   >OFF</urban_hac>
+<urban_hac hgrid="64x128"  >OFF</urban_hac>
+<urban_hac hgrid="94x192"  >OFF</urban_hac>
+
+<!-- Diagnostics -->
+<hist_mfilt>1,365,1460</hist_mfilt>
+<hist_nhtfrq>0,-24,-6</hist_nhtfrq>
+<hist_fexcl1> 'ACTUAL_IMMOB','AGNPP','ANN_FAREA_BURNED','AR','BGNPP','COL_CTRUNC','COL_FIRE_CLOSS','COL_FIRE_NLOSS','COL_NTRUNC','CPOOL','CWDC','CWDC_HR','CWDC_LOSS','CWDN','DEADCROOTC','DEADCROOTN','DEADSTEMC','DEADSTEMN','DENIT','DISPVEGC','DISPVEGN','DWT_CLOSS','DWT_CONV_CFLUX','DWT_CONV_NFLUX','DWT_NLOSS','DWT_PROD100C_GAIN','DWT_PROD100N_GAIN','DWT_PROD10C_GAIN','DWT_PROD10N_GAIN','DWT_SEEDC_TO_DEADSTEM','DWT_SEEDC_TO_LEAF','DWT_SEEDN_TO_DEADSTEM','DWT_SEEDN_TO_LEAF','ER','FIRESEASONL','FPG','FPI','FROOTC','FROOTC_ALLOC','FROOTC_LOSS','FROOTN','GPP','GR','GROSS_NMIN','HR','HTOP','LAND_UPTAKE','LAND_USE_FLUX','LEAFC','LEAFC_ALLOC','LEAFC_LOSS','LEAFN','LITFALL','LITHR','LITR1C','LITR1C_TO_SOIL1C','LITR1N','LITR2C','LITR2C_TO_SOIL2C','LITR2N','LITR3C','LITR3C_TO_SOIL3C','LITR3N','LITTERC','LITTERC_HR','LITTERC_LOSS','LIVECROOTC','LIVECROOTN','LIVESTEMC','LIVESTEMN','MEAN_FIRE_PROB','MR','NBP','NDEPLOY','NDEP_TO_SMINN','NEE','NEP','NET_NMIN','NFIX_TO_SMINN','NPP','PFT_CTRUNC','PFT_FIRE_CLOSS','PFT_FIRE_NLOSS','PFT_NTRUNC','PLANT_NDEMAND','POTENTIAL_IMMOB','PROD100C','PROD100C_LOSS','PROD100N','PROD100N_LOSS','PROD10C','PROD10C_LOSS','PROD10N','PROD10N_LOSS','PRODUCT_CLOSS','PRODUCT_NLOSS','PSNSHA','PSNSHADE_TO_CPOOL','PSNSUN','PSNSUN_TO_CPOOL','RETRANSN','RETRANSN_TO_NPOOL','RR','SEEDC','SEEDN','SMINN','SMINN_LEACHED','SMINN_TO_NPOOL','SMINN_TO_PLANT','SOIL1C','SOIL1N','SOIL2C','SOIL2N','SOIL3C','SOIL3N','SOIL4C','SOIL4N','SOILC','SOILC_HR','SOILC_LOSS','SOILPSI','SOMHR','SR','STORVEGC','STORVEGN','SUPPLEMENT_TO_SMINN','TOTCOLC','TOTCOLN','TOTECOSYSC','TOTECOSYSN','TOTLITC','TOTLITN','TOTPFTC','TOTPFTN','TOTPRODC','TOTPRODN','TOTSOMC','TOTSOMN','TOTVEGC','TOTVEGN','WOODC','WOODC_ALLOC','WOODC_LOSS','WOOD_HARVESTC','WOOD_HARVESTN','XSMRPOOL','XSMRPOOL_RECOVER', 'BCDEP','BIOGENCO','BTRAN','BUILDHEAT','DSTDEP','DSTFLXT','EFLX_DYNBAL','EFLX_LH_TOT_R','EFLX_LH_TOT_U','ELAI','ERRH2O','ERRSEB','ERRSOI','ERRSOL','ESAI','FCEV','FCOV','FCTR','FGEV','FGR','FGR12','FGR_R','FGR_U','FIRA','FIRA_R','FIRA_U','FIRE','FLDS','FLUXFM2A','FLUXFMLND','FPSN','FSA','FSAT','FSA_R','FSA_U','FSDS','FSDSND','FSDSNDLN','FSDSNI','FSDSVD','FSDSVDLN','FSDSVI','FSH','FSH_G','FSH_NODYNLNDUSE','FSH_R','FSH_U','FSH_V','FSM','FSM_R','FSM_U','FSR','FSRND','FSRNDLN','FSRNI','FSRVD','FSRVDLN','FSRVI','GC_HEAT1','GC_ICE1','GC_LIQ1','H2OCAN','H2OSNO','H2OSNO_TOP','H2OSOI','HC','HCSOI','HEAT_FROM_AC','ISOPRENE','LAISHA','LAISUN','MONOTERP','OCDEP','ORVOC','OVOC','PBOT','PCO2','Q2M','QBOT','QCHANR','QCHANR_ICE','QCHARGE','QCHOCNR','QCHOCNR_ICE','QDRAI','QDRIP','QFLX_ICE_DYNBAL','QFLX_LIQ_DYNBAL','QINFL','QINTR','QIRRIG','QMELT','QOVER','QRGWL','QRUNOFF','QRUNOFF_NODYNLNDUSE','QRUNOFF_R','QRUNOFF_U','QSNWCPICE','QSNWCPICE_NODYNLNDUSE','QSOIL','QVEGE','QVEGT','RAIN','RAINATM','RAINFM2A','RH2M','RH2M_R','RH2M_U','SABG','SABV','SNOBCMCL','SNOBCMSL','SNODSTMCL','SNODSTMSL','SNOOCMCL','SNOOCMSL','SNOW','SNOWATM','SNOWFM2A','SNOWICE','SNOWLIQ','SOILICE','SOILLIQ','SoilAlpha','SoilAlpha_U','TAUX','TAUY','TBOT','TBUILD','TG','TG_R','TG_U','THBOT','TLAI','TLAKE','TREFMNAV','TREFMNAV_R','TREFMNAV_U','TREFMXAV','TREFMXAV_R','TREFMXAV_U','TSA','TSAI','TSA_R','TSA_U','TSOI','TSOI_10CM','TV','U10','URBAN_AC','URBAN_HEAT','VOCFLXT','VOLR','WA','WASTEHEAT','WIND','WT','ZBOT','ZWT'</hist_fexcl1>
+<hist_fincl2>'QRUNOFF','QSNWCPICE'</hist_fincl2>
+<hist_fincl3>'TSOI_10CM:I'</hist_fincl3>
+</namelist_defaults>

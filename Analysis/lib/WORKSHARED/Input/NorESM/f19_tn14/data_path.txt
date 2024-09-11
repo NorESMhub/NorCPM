@@ -1,4 +1,0 @@
-/cluster/projects/nn9039k/NorCPM/Obs/
-
-EN421:
-    /cluster/projects/nn9039k/NorCPM/Obs/ANALYSIS/EN.4.2.1
