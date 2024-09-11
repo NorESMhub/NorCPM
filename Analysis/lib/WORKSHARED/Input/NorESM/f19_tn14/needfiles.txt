@@ -1,7 +1,0 @@
-    /cluster/projects/nn9039k/people/pgchiu/NorCPM/analysis/lib/WORKSHARED/Input/NorESM/f19_tn14/EN421/f19_tn14_TEM_obs_unc_anom.nc
-    /cluster/projects/nn9039k/people/pgchiu/NorCPM/analysis/lib/WORKSHARED/Input/NorESM/f19_tn14/EN421/f19_tn14_TEM_obs_unc_ff.nc
-    /cluster/projects/nn9039k/people/pgchiu/NorCPM/analysis/lib/WORKSHARED/Input/NorESM/f19_tn14/EN421/f19_tn14_SAL_obs_unc_anom.nc
-    /cluster/projects/nn9039k/people/pgchiu/NorCPM/analysis/lib/WORKSHARED/Input/NorESM/f19_tn14/EN421/f19_tn14_SAL_obs_unc_ff.nc
-    /cluster/projects/nn9039k/people/pgchiu/NorCPM/analysis/lib/WORKSHARED/Input/NorESM/f19_tn14/NOAA/f19_tn14_SST_obs_unc_anom.nc
-    /cluster/projects/nn9039k/people/pgchiu/NorCPM/analysis/lib/WORKSHARED/Input/NorESM/f19_tn14/NOAA/f19_tn14_SST_obs_unc_ff.nc
-
