@@ -25,17 +25,20 @@ your public ssh key from Betzy to your github profile.
 
 ### Install NorCPM code 
 
-Install NorCPM in the nn9039k project space with
-
+We recommend to create a personal folder in nn9039k under which NorCPM 
+can be installed, e.g. 
     mkdir -p /cluster/projects/nn9039k/people/$USER
     cd /cluster/projects/nn9039k/people/$USER 
+
+Next, download the code with 
     git clone ssh://git@github.com/NorESMhub/NorCPM.git NorCPM
 
 In case `git clone` throws a `permission denied` error then use instead
 
     git clone https://github.com/NorESMhub/NorCPM.git NorCPM
 
-NorCPM is now installed in `/cluster/projects/nn9039k/people/$USER/NorCPM`
+In the following, we refer to the location where NorCPM is installed 
+as NORCPMROOT.
 
 ## Setting up and running experiments 
 
@@ -306,6 +309,7 @@ General settings
 Assimilation settings
 
     ASSIMROOT         : Location of assimilation code
+    MEAN_MOD_DIR      : Location where model climatologies are stored (for anomaly DA) 
     NTASKS_DA         : total number of mpi-tasks available for assimilation 
     NTASKS_ENKF       : number of mpi-tasks used for EnKF
     OCNGRIDFILE       : path to ocean grid file

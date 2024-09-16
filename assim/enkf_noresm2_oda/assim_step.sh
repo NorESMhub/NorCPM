@@ -4,7 +4,12 @@
 . $SETUPROOT/settings/setmach.sh 
 cd $ANALYSISROOT
 rm -f *_PAUSE_* 
-touch BLOM_DA 
+if [[ `echo $FREQUENCYLIST | grep DAY` ]]
+then
+  touch BLOM_DA_DAILY
+else
+  touch BLOM_DA_MONTHLY
+fi
 
 ODA () {
   set -xv 

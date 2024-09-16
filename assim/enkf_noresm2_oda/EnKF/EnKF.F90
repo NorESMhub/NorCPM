@@ -256,11 +256,10 @@ program EnKF
 
      do m = m1, m2
 !29/05/2015 fanf add 3 digit to qmpi
-!        print '(a, i2, a, i3, a, a6, a, i3, a, f11.0)',&
-!        print '(a, i3, a, i3, a, a6, a, i3, a, f11.0)',&
-!             "I am ", qmpi_proc_num, ', m = ', m, ", field = ",&
-!             fieldnames(m), ", k = ", fieldlevel(m), ", time = ",&
-!             rtc() - time2
+         print '(a, i3, a, i3, a, a6, a, i3, a, f11.0)',&
+              "I am ", qmpi_proc_num, ', m = ', m, ", field = ",&
+              fieldnames(m), ", k = ", fieldlevel(m), ", time = ",&
+              rtc() - time2
         if ( trim(fieldnames(m)) /= 'dp' ) then
            if (fieldlevel(m)>=3) then    
               allocate(dpfld(idm * jdm, ENSSIZE))
