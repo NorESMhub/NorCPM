@@ -15,7 +15,7 @@
 : ${REF_CASE_PREFIX:=noresm_ctl_19700101_19700101} 
 : ${REF_CASE_SUFFIX_MEMBER1:=_mem01}  
 : ${REF_PATH_LOCAL:=$INPUTDATA/ccsm4_init/$REF_CASE_PREFIX}
-: ${REF_DATE:=1996-01-01} # multiple reference dates only for RUN_TYPE=hybrid
+: ${REF_DATE:=1996-01-01} 
 
 # job settings
 : ${STOP_OPTION:=nyears} # units for run length specification STOP_N 
