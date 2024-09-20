@@ -7,7 +7,9 @@ and ensemble setup scripts for assimilation and prediction with NorESM.
 
 ## Resources
 
-- [NorCPM overview](docs/NorCPM_overview_20240911.pdf) 
+- NorCPM overview ([pdf](docs/NorCPM_overview_20240911.pdf),[pptx](docs/NorCPM_overview_20240911.pptx)) 
+- NorCPM how-to-contribute ([pdf](docs/NorCPM_how-to-contribute_20240920.pdf),[pptx](docs/NorCPM_how-to-contribute_20240920.pptx))
+- NorCPM developer-meeting-2024.09.24: A guide to high-frequent data assimilation with NorESM2 ([pdf](docs/NorCPMdeveloperMeeting20240924.pdf),[pptx](docs/NorCPMdeveloperMeeting20240924.pptx))
 
 ## Installation on Betzy 
 
