@@ -112,7 +112,7 @@ latest set of restarts present in the run directory.
 The frequency of restart dumps is controlled via the setting variables 
 `STOP_OPTION` and `STOP_N`. 
 
-#### Customizing simulation code and output - noresm1 
+### Customizing simulation code and output - noresm1 
 
 The directory of the first simulation member serves as a template for all other
 simulation members.
@@ -145,7 +145,7 @@ The `SKIP_CASE1` argument will force the script to skip the configuration of the
 first simulation member. The settings of the existing first simulation member 
 will then be applied to the other simulation members. 
 
-#### Customizing simulation code and output - noresm2 
+### Customizing simulation code and output - noresm2 
 
 Make a copy of one of the folders in `setup/noresm2/user_mods` and point to the new folder 
 by changing the value of USER_MODS_DIR the variable in the settings file of your experiment. 
@@ -153,7 +153,7 @@ by changing the value of USER_MODS_DIR the variable in the settings file of your
 The code can be modified by changing the content in SourceMods and the diagnostic output 
 can be customized by changing the user_nml-files in the new user_mods folder.
 
-#### Recreating an old experiment and continuing it
+### Recreating an old experiment and continuing it
 
 Occasionally, one wants to continue an old experiment that either has been run by 
 another user, or, for which the case and run directories for other reasons are 
@@ -184,6 +184,24 @@ from the restart data as if running the original simulations.
 
 Note that with `CONTINUE_RUN=TRUE` any changes to the diagnostic output or 
 external forcing specification in the namelists of CAM and CLM will be ignored.   
+
+### Setting initialization for noresm2
+
+Reference case names can be specified explicitly with REF_CASE_LIST. The 
+reference cases are cycled through if their number is smaller than the ensemble size.
+
+Alternatively, the variables REF_CASE_PREFIX and REF_CASE_SUFFIX_MEMBER1 can be 
+specified and the reference case names will then be guessed.
+
+A single reference case for all members can be specified by either setting 
+REF_CASE or REF_CASE_LIST.
+
+For hybrid initialisation, multiple reference dates can be specified by using 
+REF_DATE_LIST instead of REF_DATE. The dates are cycled through if their number 
+is smaller than the ensemble size.
+
+For hybrid initialisation, a perturbation can be applied to the atmospheric 
+initialisation by setting ADD_PERTURBATION to 1.
    
 
 ## Reference for settings variables 
