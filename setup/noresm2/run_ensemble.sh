@@ -93,6 +93,25 @@ do
   [[ $ASSIMROOT ]] && touch $ANALYSISROOT/NORESM_FINISHED   
   wait
 
+  echo + PERFORM SHORT-TERM ARCHIVING 
+  N_PARALLEL_STARCHIVE=0 
+  for MEMBER in `seq -w $MEMBER1 $MEMBERN`
+  do
+    CASE=${EXPERIMENT}_$SDATE_PREFIX${SDATE}_$MEMBER_PREFIX$MEMBER
+    RELPATH=$EXPERIMENT/${EXPERIMENT}_$SDATE_PREFIX$SDATE/$CASE
+    CASEROOT=$CASESROOT/$RELPATH
+    cd $CASEROOT
+    sed -i -e '/convert_loop >>/d' noresm2netcdf4.sh  
+    ./case.submit --job case.st_archive --no-batch  
+    N_PARALLEL_STARCHIVE=$((N_PARALLEL_STARCHIVE+1))
+    if [ $N_PARALLEL_STARCHIVE -eq $MAX_PARALLEL_STARCHIVE ]
+    then
+      N_PARALLEL_STARCHIVE=0
+      wait
+    fi
+  done     
+  wait
+
   CONTINUE_RUN=TRUE 
 done  
 echo  END RESTART LOOP 

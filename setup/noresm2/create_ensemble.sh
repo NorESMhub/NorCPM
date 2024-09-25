@@ -124,6 +124,7 @@ do
     ./xmlchange --file env_build.xml --id EXEROOT --val $EXEROOT
     ./xmlchange --file env_run.xml --id RUNDIR --val $EXEROOT/run
     ./xmlchange --file env_run.xml --id DOUT_S --val FALSE
+    ./xmlchange --file env_run.xml --id DOUT_S_SAVE_INTERIM_RESTART_FILES --val TRUE
     ./xmlchange --file env_run.xml --id DOUT_S_ROOT --val $DOUT_S_ROOT
     ./xmlchange --file env_run.xml --id RUN_REFCASE --val $REF_CASE
     ./xmlchange --file env_run.xml --id GET_REFCASE --val FALSE
@@ -160,6 +161,7 @@ do
     ./xmlchange --file env_build.xml --id CIME_OUTPUT_ROOT --val $CIME_OUTPUT_ROOT
     ./xmlchange --file env_run.xml --id RUNDIR --val $EXEROOT/run
     ./xmlchange --file env_run.xml --id DOUT_S --val FALSE
+    ./xmlchange --file env_run.xml --id DOUT_S_SAVE_INTERIM_RESTART_FILES --val TRUE
     ./xmlchange --file env_run.xml --id DOUT_S_ROOT --val $DOUT_S_ROOT
     ./xmlchange --file env_run.xml --id RUN_REFCASE --val $REF_CASE
     ./xmlchange --file env_run.xml --id GET_REFCASE --val FALSE
