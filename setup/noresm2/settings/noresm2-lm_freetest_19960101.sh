@@ -21,9 +21,9 @@
 : ${STOP_OPTION:=nmonths} # units for run length specification STOP_N 
 : ${STOP_N:=1} # run continuesly for this length 
 : ${RESTART:=0} # restart this many times  
-: ${WALLTIME:='00:59:00 --qos=devel'}
+: ${WALLTIME:='00:59:00'}
 : ${ACCOUNT:=nn9039k}
-: ${MAX_PARALLEL_STARCHIVE:=30}
+: ${MAX_PARALLEL_STARCHIVE:=10}
 
 # general settings 
 : ${CASESROOT:=$SETUPROOT/../../cases}

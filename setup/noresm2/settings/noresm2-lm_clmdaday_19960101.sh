@@ -23,6 +23,7 @@
 : ${RESTART:=0} # restart this many times  
 : ${WALLTIME:='01:00:00'}
 : ${ACCOUNT:=nn9039k}
+: ${MAX_PARALLEL_STARCHIVE:=10}
 
 # general settings 
 : ${CASESROOT:=$SETUPROOT/../../cases}
