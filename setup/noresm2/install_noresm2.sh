@@ -6,7 +6,7 @@ echo SETUPROOT is $SETUPROOT
 
 echo Prepare logging 
 mkdir -p $SETUPROOT/../../logs
-LOGFILE=$SETUPROOT/../../logs/install_noresm-`date +%Y%m%d%H%M`_${EXPERIMENT}.log 
+LOGFILE=$SETUPROOT/../../logs/install_noresm2-`date +%Y%m%d%H%M`.log 
 echo Write log file at $LOGFILE  
 npipe=/tmp/$$.tmp
 trap "rm -f $npipe" EXIT
@@ -20,7 +20,7 @@ echo
 
 cd $SETUPROOT/../../model 
 
-git clone -b release-noresm2.0.7 --single-branch https://github.com/NorESMhub/NorESM.git noresm2
+git clone -b release-noresm2.0.8 --single-branch https://github.com/NorESMhub/NorESM.git noresm2
 
 cd noresm2
 

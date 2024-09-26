@@ -7,9 +7,10 @@ and ensemble setup scripts for assimilation and prediction with NorESM.
 
 ## Resources
 
-- NorCPM overview ([pdf](docs/NorCPM_overview_20240911.pdf),[pptx](docs/NorCPM_overview_20240911.pptx)) 
+- NorCPM quick-start ([pdf](docs/NorCPM_quick-start_20240911.pdf),[pptx](docs/NorCPM_quick-start_20240911.pptx)) 
 - NorCPM how-to-contribute ([pdf](docs/NorCPM_how-to-contribute_20240920.pdf),[pptx](docs/NorCPM_how-to-contribute_20240920.pptx))
-- NorCPM developer-meeting-2024.09.24: A guide to high-frequent data assimilation with NorESM2 ([pdf](docs/NorCPMdeveloperMeeting20240924.pdf),[pptx](docs/NorCPMdeveloperMeeting20240924.pptx))
+- NorCPM developer-meeting-2024.09.24: Ready-to-use setup for high-frequent EnKF assimilation with NorESM2 ([pdf](docs/NorCPMdeveloperMeeting20240924_noAnim.pdf),[pptx](docs/NorCPMdeveloperMeeting20240924_noAnim.pptx))
+
 
 ## Installation on Betzy 
 
@@ -82,7 +83,7 @@ settings files in the settings sub-directory.
 
 For example 
 
-    ./create_ensemble.sh ../settings/noresm2-lmesm_free_19700101.sh ENSSIZE=15
+    ./create_ensemble.sh ../settings/noresm2-lmesm_free_20mem_19750101.sh ENSSIZE=15
     
 will set up a no-assimilation hist-esm experiment with 15 simulation members.
 
@@ -101,7 +102,7 @@ Launch the experiment with
 
 Running  
 
-    ./submit_ensemble.sh ../settings/noresm2-lmesm_free_19700101.sh ENSSIZE=15
+    ./submit_ensemble.sh ../settings/noresm2-lmesm_free_20mem_19750101.sh ENSSIZE=15
     
 will submit the hist-esm experiment created in the previous example.
 
