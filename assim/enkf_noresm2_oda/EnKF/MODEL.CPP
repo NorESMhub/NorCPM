@@ -8,3 +8,4 @@
 #define EXPCOV
 #undef CHECK_SOLUTION
 #undef X4SVD
+#define INTEL_COMPILER

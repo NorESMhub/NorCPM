@@ -82,7 +82,7 @@ do
     NODES_DA=$((NODES_TOTAL-NODES_NORESM))
     head -$((NODES_TOTAL-NODES_NORESM)) hostfile > $ANALYSISROOT/hostfile_da 
   fi  
-  sed -i -e "s%<executable>srun.*%<executable>srun -n $NTASKS_NORESM -N $NODES_NORESM -F hostfile_noresm </executable>%" env_mach_specific.xml 
+  sed -i -e "s%<executable>srun.*%<executable>srun --kill-on-bad-exit --label -n $NTASKS_NORESM -N $NODES_NORESM -F hostfile_noresm </executable>%" env_mach_specific.xml 
   ./case.submit --no-batch
   while true
   do

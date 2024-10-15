@@ -36,10 +36,7 @@ betzy)
   source /cluster/installations/lmod/lmod/init/sh
   module --quiet restore system
   module load StdEnv
-  module load netCDF-Fortran/4.6.0-iompi-2022a
-  module load NCO/5.1.9-iomkl-2022a
-  module load CMake/3.23.1-GCCcore-11.3.0
-  module load Python/3.10.4-GCCcore-11.3.0
+  module load NCO/5.1.9-iomkl-2022a XML-LibXML/2.0209-GCCcore-12.3.0 CMake/3.27.6-GCCcore-13.2.0 Python/3.11.5-GCCcore-13.2.0 netCDF-Fortran/4.6.1-iompi-2023b iomkl/2023b 
   export MKL_DEBUG_CPU_TYPE=5
   ulimit -s unlimited
   ;; 

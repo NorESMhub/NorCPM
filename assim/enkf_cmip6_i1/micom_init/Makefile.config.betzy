@@ -6,10 +6,10 @@ TARGET=micom_init
 #MYCPPDEFS="-DMPI -DICEDYN -DLEVITUS2X -DTRC -DIDLAGE -DPNETCDF"
 
 # Fortran compiler
-FC=mpif90
+FC=mpifort
 
 # C compiler
-CC=mpicc
+CC=icc
 
 # Linker
 LD=$(FC)

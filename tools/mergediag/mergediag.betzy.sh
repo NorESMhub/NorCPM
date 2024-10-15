@@ -21,7 +21,7 @@ fi
 source /cluster/installations/lmod/lmod/init/sh
 module --quiet restore system
 module load StdEnv
-module load NCO/4.9.5-iompi-2020a	
+module load NCO/5.1.9-iomkl-2022a
 
 MEMBER1=`ls $BASEDIR | head -1 | tail -c3`
 MEMBERN=`ls $BASEDIR | tail -1 | tail -c3`

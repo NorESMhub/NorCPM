@@ -5,18 +5,19 @@ INCS = $(INC_NETCDF) $(INC_FFTW)
 LIBS = -qmkl=cluster $(LIB_LAPACK) $(LIB_NETCDF) $(LIB_FFTW)
 
 ifeq ($(MPI),YES)
-        CF90 = mpif90
-        CC = mpicc
+        CF90 = mpifort
+        CC = icc
 	PARO =
 	CPPFLAGS = -DQMPI 
+	CPP = cpp -P -traditional-cpp
 else
 	CF90 = ifort
 	CC = icc
 	PAR0 = 
+	CPP = cpp -P -traditional-cpp
 endif
 CF77 = $(CF90)
 LD = $(CF90) 
-CPP = cpp -P -traditional-cpp
 
 CPPARCH = -DIA32 -DFFTW -DNOMPIR8
 CPPFLAGS += $(CPPARCH) -DF90_NOFLUSH
@@ -27,13 +28,14 @@ OPTO_NOAVX2 = -O2 -align -fp-model source
 #OPTO_NOAVX2 = -g -traceback -O2 -align -fp-model source  
 OPTO = $(OPTO_NOAVX2) -xavx2 -no-fma #-fast -fastsse 
 ARCHO= -mcmodel=medium
-INLO = -ip
+#INLO = -ip
 DIVO = 
 DEBUG_FLAGS = 
 
-FFLAGS_NOAVX2 = $(SIZEO) $(OPTO_NOAVX2) $(ARCHO) $(PARO) $(INLO) $(DIVO) $(DEBUG_FLAGS) $(INCS)
-FFLAGS = $(SIZEO) $(OPTO) $(ARCHO) $(PARO) $(INLO) $(DIVO) $(DEBUG_FLAGS) $(INCS)
-CFLAGS = $(FFLAGS)
+CFLAGS_NOAVX2 = -O2 $(ARCHO) $(PARO) $(INLO) $(DIVO) $(DEBUG_FLAGS) $(INCS)
+CFLAGS = -O2 $(ARCHO) $(PARO) $(INLO) $(DIVO) $(DEBUG_FLAGS) $(INCS)
+FFLAGS_NOAVX2 = $(CFLAGS_NOAVX2) $(SIZEO) $(OPTO_NOAVX2) 
+FFLAGS = $(CFLAGS) $(SIZEO) $(OPTO)
 LINKFLAGS = $(SIZEO) $(OPTO_NOAVX2) $(ARCHO) $(PARO) $(INLO) $(DIVO) $(DEBUG_FLAGS) 
 
 # language-specific flags
