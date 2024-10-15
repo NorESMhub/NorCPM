@@ -75,7 +75,7 @@ setenv I_MPI_EXTRA_FILESYSTEM on
 setenv I_MPI_EXTRA_FILESYSTEM_LIST lustre
 
 if (\$USE_MPISERIAL == "FALSE") then
-   srun ./ccsm.exe >&! ccsm.log.\$LID
+   srun --kill-on-bad-exit --label ./ccsm.exe >&! ccsm.log.\$LID
 else
          ./ccsm.exe >&! ccsm.log.\$LID
 endif

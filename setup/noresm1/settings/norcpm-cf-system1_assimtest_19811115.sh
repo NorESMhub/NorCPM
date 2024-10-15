@@ -21,7 +21,7 @@
 : ${STOP_OPTION:=nmonths} # units for run length specification STOP_N 
 : ${STOP_N:=1} # run continuesly for this length 
 : ${RESTART:=2} # restart this many times  
-: ${WALLTIME:='24:00:00'}
+: ${WALLTIME:='01:00:00'}
 : ${PECOUNT:=L} # T=32, S=64, M=96, L=128, X1=502
 : ${ACCOUNT:=nn9039k}
 : ${MAX_PARALLEL_STARCHIVE:=30}

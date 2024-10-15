@@ -48,7 +48,7 @@ endif
 
 # Note that NETCDF_DIR is obtained from invoking modules
 FC            := mpifort -g -traceback
-CC            := mpicc -g -traceback
+CC            := icc -g -traceback
 NETCDF_PATH   := $(EBROOTNETCDF)
 INC_NETCDF    := $(EBROOTNETCDFMINFORTRAN)/include
 LIB_NETCDF    := $(EBROOTNETCDFMINFORTRAN)/lib

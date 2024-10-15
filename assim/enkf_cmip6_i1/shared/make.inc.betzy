@@ -5,8 +5,8 @@ INCS = $(INC_NETCDF) $(INC_FFTW)
 LIBS = -mkl=cluster $(LIB_LAPACK) $(LIB_NETCDF) $(LIB_FFTW)
 
 ifeq ($(MPI),YES)
-        CF90 = mpif90
-        CC = mpicc
+        CF90 = mpifort
+        CC = icc
 	PARO =
 	CPPFLAGS = -DQMPI 
 else

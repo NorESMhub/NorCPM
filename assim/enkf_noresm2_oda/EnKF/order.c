@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "cfortran.h"
+#include <cfortran.h>
 
 typedef struct {
     int index;
