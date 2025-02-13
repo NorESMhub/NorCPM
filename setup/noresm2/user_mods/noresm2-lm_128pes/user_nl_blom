@@ -39,7 +39,7 @@
   H2D_SALFLX   = 4,0
   H2D_SALRLX   = 0,0
   H2D_SBOT     = 4,0
-  H2D_SEALV    = 4,0
+  H2D_SEALV    = 4,4
   H2D_SLVSQ    = 4,0
   H2D_SFL      = 4,0
   H2D_SOP      = 4,0

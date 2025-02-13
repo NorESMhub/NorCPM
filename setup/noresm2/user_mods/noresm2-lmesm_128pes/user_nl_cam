@@ -1,3 +1,35 @@
+aircraft_datapath     = '/cluster/shared/noresm/inputdata/filippa'
+
+aircraft_specifier    = 'ac_CO2 -> emissions-cmip6_GridFED_CO2_anthro_ac_175001-202412_fv_1.9x2.5_c20241218_date.txt'
+
+aircraft_type         = 'SERIAL'
+
+co2flux_fuel_file     = '/cluster/shared/noresm/inputdata/filippa/emissions-cmip6_GridFED_CO2_anthro_surface_175001-202412_fv_1.9x2.5_c20241218_date.nc'
+
+tracer_cnst_datapath  = '/cluster/shared/noresm/inputdata/atm/cam/tracer_cnst'
+tracer_cnst_file      = 'tracer_cnst_halons_3D_L70_1849-2101_CMIP6ensAvg_SSP2-4.5_c190403.nc'
+
+
+ext_frc_specifier     = 'H2O    ->  /cluster/shared/noresm/inputdata/atm/cam/chem/emis/elev/H2OemissionCH4oxidationx2_3D_L70_1849-2101_CMIP6ensAvg_SSP2-4.5_c190403.nc',
+                        'BC_AX  ->  /cluster/shared/noresm/inputdata/share_pgchiu/results/emissions_cmip6_noresm2_nhist-ssp245_BC_AX_all_vertical_1849-2301_1.9x2.5_20241219.nc',
+                        'BC_N   ->  /cluster/shared/noresm/inputdata/share_pgchiu/results/emissions_cmip6_noresm2_nhist-ssp245_BC_N_all_vertical_1849-2301_1.9x2.5_20241219.nc',
+                        'BC_NI  ->  /cluster/shared/noresm/inputdata/share_pgchiu/results/emissions_cmip6_noresm2_nhist-ssp245_BC_NI_all_vertical_1849-2301_1.9x2.5_20241219.nc',
+                        'OM_NI  ->  /cluster/shared/noresm/inputdata/share_pgchiu/results/emissions_cmip6_noresm2_nhist-ssp245_OM_NI_all_vertical_1849-2301_1.9x2.5_20241219.nc',
+                        'SO2    ->  /cluster/shared/noresm/inputdata/share_pgchiu/results/emissions_cmip6_noresm2_nhist-ssp245_SO2_all_vertical_1849-2301_1.9x2.5_20241219.nc',
+                        'SO4_PR ->  /cluster/shared/noresm/inputdata/share_pgchiu/results/emissions_cmip6_noresm2_nhist-ssp245_SO4_PR_all_vertical_1849-2301_1.9x2.5_20241219.nc'
+
+srf_emis_specifier    = 'BC_AX  ->  /cluster/shared/noresm/inputdata/share_pgchiu/results/emissions_cmip6_noresm2_nhist-ssp245_BC_AX_all_surface_1849-2301_1.9x2.5_20241219.nc',
+                        'BC_N   ->  /cluster/shared/noresm/inputdata/share_pgchiu/results/emissions_cmip6_noresm2_nhist-ssp245_BC_N_all_surface_1849-2301_1.9x2.5_20241219.nc',
+                        'OM_NI  ->  /cluster/shared/noresm/inputdata/share_pgchiu/results/emissions_cmip6_noresm2_nhist-ssp245_OM_NI_all_surface_1849-2301_1.9x2.5_20241219.nc',
+                        'SO2    ->  /cluster/shared/noresm/inputdata/share_pgchiu/results/emissions_cmip6_noresm2_nhist-ssp245_SO2_all_surface_1849-2301_1.9x2.5_20241219.nc',
+                        'SO4_PR ->  /cluster/shared/noresm/inputdata/share_pgchiu/results/emissions_cmip6_noresm2_nhist-ssp245_SO4_PR_all_surface_1849-2301_1.9x2.5_20241219.nc'
+
+prescribed_ozone_file = 'ozone_strataero_WACCM_L70_zm5day_18500101-21010201_CMIP6histEnsAvg_SSP245_c190403.nc'
+
+tracer_cnst_file      = 'tracer_cnst_halons_3D_L70_1849-2101_CMIP6ensAvg_SSP2-4.5_c190403.nc'
+
+flbc_file             = '/cluster/shared/noresm/inputdata/share_pgchiu/results/LBC_1750-2500_CMIP6_NHIST-SSP245_0p5degLat_GlobAnnAvg_c190301.nc'
+
 nhtfrq = 0, -24  
 
 mfilt  = 1, 365 
