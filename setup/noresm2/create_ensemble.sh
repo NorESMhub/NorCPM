@@ -29,7 +29,7 @@ do
   if [[ $REF_DATE_LIST ]]
   then
     NREF=`echo $REF_DATE_LIST | wc -w` 
-    REF_CASE=`echo $REF_DATE_LIST | cut -d' ' -f$(( ( ( $((10#$MEMBER-10#$MEMBER1+1)) - 1 ) % $NREF ) + 1 ))`
+    REF_DATE=`echo $REF_DATE_LIST | cut -d' ' -f$(( ( ( $((10#$MEMBER-10#$MEMBER1+1)) - 1 ) % $NREF ) + 1 ))`
   fi 
   echo +++ Reference date for member $MEMBER set to: $REF_DATE
   #
