@@ -13,7 +13,7 @@
 ## read setting
 settingFile="$1"
 source $settingFile
-MEM01=$(printf "%2.2d" $MEM01)
+MEM01=$(printf "%2.2d" $((10#$MEM01))
 
 xmlq (){
     items=$*
@@ -88,7 +88,7 @@ submit_predictions () {
     if [ -z "$STARTS_YYYYMM" ]; then
         for y in $START_YEARS; do
         for m in $START_MONTHS; do
-            STARTS_YYYYMM="${STARTS_YYYYMM} $y$(printf '%2.2d' $m)"
+            STARTS_YYYYMM="${STARTS_YYYYMM} $y$(printf '%2.2d' $((10#$m)))"
         done #START_YEAR0
         done #START_MONTH0
     fi
@@ -191,7 +191,7 @@ check_input_analysis () { ## check obs data in analysis
         for i in $(seq 0 $RESTART) ; do
             y=$(( $yrNow + ($i / 12) ))
             m=$(( 1 + ($i %12)))
-            m=$(printf "%2.2d" $m)
+            m=$(printf "%2.2d" $((10#$m))
             local obsfiles="$obsfiles ${WORKSHARED}/Obs/${OBSTYPE}/${PRODUCER}/${y}_${m}.nc"
         done
 

@@ -1,0 +1,8 @@
+08Oct2024:
+    randomly crash, seems ib problem(?), try with comment out in 
+        norcpm_cases/norcpm2a_tro10Atl5m_ng2l1d_detrend/norcpm2a_tro10Atl5m_ng2l1d_detrend_mem01/env_mach_specific.xml
+        <env name="OMPI_MCA_coll_hcoll_enable">0</env>
+
+04Nov2024:
+    weighting_Tro10Atl.nc south boundary error cut
+    rerun with weighting_Tro10Atl_w2.nc

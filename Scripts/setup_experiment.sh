@@ -4,7 +4,7 @@
 test -f "$1" && (echo "Usage: $0 use_case/settingfile.sh" ; exit 1) || source $1
 envfile="${NORCPMROOT}/Analysis/env/env.${MACH}"
 source $envfile
-MEM01=$(printf "%2.2d" $MEM01)
+MEM01=$(printf "%2.2d" $((10#$MEM01))
 
 ## def functions
 create () { ## create case 
@@ -13,7 +13,7 @@ create () { ## create case
     local NC='\033[0m]' # No Color
     ## arguments
     local CASENAME="$1" ## NorCPM case name
-    local MEM="$(printf '%2.2d' $2)"
+    local MEM="$(printf '%2.2d' $((10#$2)))"
     local STARTDATE="$3" ## should be YYYY-MM-DD
 
     echo "Creating $CASENAME member $MEM of $STARTDATE"
@@ -184,7 +184,7 @@ check_restart () { ## check data
         fi
     fi
     for i in $(seq $MEM01 $(($MEM01 + $NMEMBER -1))) ; do
-        local ii=$(printf '%2.2d' $i)
+        local ii=$(printf '%2.2d' $((10#$i))
         local restdir=${REST_PATH}/${REST_PREFIX}${ii}
         test -d "${restdir}/rest" && restdir="${restdir}/rest" || true
         printf "  ${restdir}"

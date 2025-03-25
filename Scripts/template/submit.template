@@ -83,7 +83,7 @@ copybins () {
 xmlc_allmember (){
     ## apply xmlchange to all members
     for i in $(seq $MEM01 $NMEMBER); do
-        ii=$(printf "%2.2d" $i)
+        ii=$(printf "%2.2d" $((10#$i)))
         cd ${NORCPM_CASEDIR}/${CASENAME}_${MEMTAG}${ii}/
         ./xmlchange "$*"
         ./preview_namelists  >>  $logfile &
@@ -109,7 +109,7 @@ st_archive_allmember (){
 link_forecast (){
     year=$1
     month=$2
-    mm=$(printf '%2.2d' $month)
+    mm=$(printf '%2.2d' $((10#$month))
     yr=$(printf '%4.4d' $year)
 
     cd ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}
@@ -229,7 +229,7 @@ do_analysis (){
 
                 #launch EnKF
                 echo "  logfile: ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}/pbs_enkf.log"
-                pbs_enkf > pbs_enkf.log 2>&1
+                pbs_enkf >> pbs_enkf.log 2>&1
 
                 ## Check output
                 cd ${NORCPM_RUNDIR}/${ANALYSIS_DIRNAME}
@@ -283,7 +283,7 @@ do_analysis (){
         rm -f observations.uf enkf.prm* infile.data* mask.nc mask_ice.nc
         echo 'Finished with Assim post-processing'
         #every pair month we reduced rfactor by 1
-        if (( $mm % 2 == 0 )) ; then
+        if (( $((10#$mm)) % 2 == 0 )) ; then
            let RFACTOR=RFACTOR-1 || true
            test $RFACTOR -lt 1 && RFACTOR=1 || echo 'RFACTOR test'
         fi
@@ -291,7 +291,7 @@ do_analysis (){
 
 nowDateMEM () {
     ## output variables: NOWDATE, STARTMONTH, STARTYEAR, STARTDAY, short_start_date
-    local mem=$(printf "%2.2d" $1)
+    local mem=$(printf "%2.2d" $((10#$1)))
     NOWDATE=$(cat ${NORCPM_RUNDIR}/${CASENAME}_${MEMTAG}${mem}/run/rpointer.ocn| sed 's/.*\.r\.\(....-..-..-.....\)\.nc */\1/')
     echo "DATE: $mem $NOWDATE"
         short_start_date=`echo $NOWDATE | cut -c1-10`
