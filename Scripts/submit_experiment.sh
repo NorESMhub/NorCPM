@@ -13,7 +13,7 @@
 ## read setting
 settingFile="$1"
 source $settingFile
-MEM01=$(printf "%2.2d" $((10#$MEM01))
+MEM01=$(printf "%2.2d" $((10#$MEM01)))
 
 xmlq (){
     items=$*
@@ -44,8 +44,10 @@ submit_analysis () {
 }
 
 submit_prediction  () {
-
     ## check all members start at same date
+    if [ ! -z "$1" ] && [ -d ${EXESROOT}/${CASENAME}_${1} ] ; then
+        local CASENAME=${CASENAME}_${1}
+    fi
     RESTDATES=$(grep '\.r\.' ${EXESROOT}/${CASENAME}/${CASENAME}_${MEMTAG}*/run/rpointer.atm \
                 | cut -d. -f4 | uniq | wc -l)
     test "$RESTDATES" -gt 1 && ( echo 'members time inconsistant, exit...' ; exit 1)
@@ -67,11 +69,9 @@ submit_prediction  () {
     cd ${CASESROOT}/${CASENAME}/${CASENAME}_${MEMTAG}${MEM01}/
     './case.submit'
     jobid=$(./xmlquery --value JOB_IDS| sed -e's/.*case.run:\([0-9]*\).*/\1/')
-    cd "$NOWPWD"
 
     ## submit others st_archive, if not subgroup template=template.st_archive_NorCPM_mem01
-
-    if [ $(./xmlquery  --val --subgroup case.st_archive template) != 'template.st_archive_NorCPM_mem01' ] ;then
+    if [ "$(./xmlquery  --value --subgroup case.st_archive template)" != 'template.st_archive_NorCPM_mem01' ] ;then
         NOWPWD=$PWD
         for c in ${CASESROOT}/${CASENAME}/${CASENAME}_${MEMTAG}* ; do
             test "$c" == "${CASESROOT}/${CASENAME}/${CASENAME}_${MEMTAG}${MEM01}" && continue
@@ -80,21 +80,28 @@ submit_prediction  () {
             './case.submit' --job 'case.st_archive' --prereq "${jobid}" > /dev/null &
         done
         wait
-        cd "$NOWPWD"
     fi
+
+    cd "$NOWPWD"
 }
 
 submit_predictions () {
+    n=0
     if [ -z "$STARTS_YYYYMM" ]; then
         for y in $START_YEARS; do
         for m in $START_MONTHS; do
             STARTS_YYYYMM="${STARTS_YYYYMM} $y$(printf '%2.2d' $((10#$m)))"
+            n=$((n + 1))
         done #START_YEAR0
         done #START_MONTH0
     fi
-    for yyyymm in $STARTS_YYYYMM ; do
-        submit_prediction $yyyymm
-    done
+    if [ $n -gt 1 ];then
+        for yyyymm in $STARTS_YYYYMM ; do
+            submit_prediction $yyyymm
+        done
+    else
+        submit_prediction
+    fi
 }
 
 check_input_analysis () { ## check obs data in analysis
@@ -191,7 +198,7 @@ check_input_analysis () { ## check obs data in analysis
         for i in $(seq 0 $RESTART) ; do
             y=$(( $yrNow + ($i / 12) ))
             m=$(( 1 + ($i %12)))
-            m=$(printf "%2.2d" $((10#$m))
+            m=$(printf "%2.2d" $((10#$m)))
             local obsfiles="$obsfiles ${WORKSHARED}/Obs/${OBSTYPE}/${PRODUCER}/${y}_${m}.nc"
         done
 

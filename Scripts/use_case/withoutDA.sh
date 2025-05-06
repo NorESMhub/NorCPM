@@ -25,9 +25,12 @@
 # Experiment default setting, can be set below to override default.
 # example:
 
-CASENAME=newNorCPM2_01
-NMEMBER=3
-START_MONTHS='2 5 8 11 '
+CASENAME=test_norcpm_lm
+NMEMBER=4
+START_YEARS=1982
+START_MONTHS='2 11 '
+REST_PATH=/cluster/projects/nn9039k/people/pgchiu/restarts
+REST_CASE=norcpm_ana_f09_tn14
 
 ## for Betzy
 PRECASESETUP01='./xmlchange USER_REQUESTED_QUEUE=normal --subgroup=case.run'

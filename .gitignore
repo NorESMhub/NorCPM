@@ -11,3 +11,5 @@ TMP
 models
 bin
 lib
+*.gz
+/Modelsrc/NorESM*

@@ -1,0 +1,3 @@
+wget https://github.com/NorESMhub/NorESM/archive/refs/tags/release-noresm2.1.3.tar.gz
+tar xf release-noresm2.1.3.tar.gz 
+mv NorESM-release-noresm2.1.3 NorESM

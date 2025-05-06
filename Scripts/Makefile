@@ -1,5 +1,6 @@
 case=use_case/withDA.sh
 case=use_case/withDA_LM.sh
+case=use_case/withoutDA.sh
 
 defalut:
 	make build submit
