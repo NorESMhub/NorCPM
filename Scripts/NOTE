@@ -1,4 +1,5 @@
 05May2025:
+    Fix submit script for multiple forecasts
 
 08Oct2024:
     randomly crash, seems ib problem(?), try with comment out in 
