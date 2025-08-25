@@ -54,7 +54,7 @@ do
     if [[ $RUN_TYPE && $RUN_TYPE == "hybrid" ]] 
       then 
         sed -i "s/start_type .*/start_type    = 'startup'/" drv_in 
-        sed -i "s/RUNTYP .*/RUNTYP    = 'startup'/" ocn_in
+        sed -i "s/RUNTYP .*/RUNTYP    = 'hybrid'/" ocn_in
       else 
         sed -i "s/start_type .*/start_type    = 'branch'/" drv_in 
         sed -i "s/RUNTYP .*/RUNTYP    = 'branch'/" ocn_in

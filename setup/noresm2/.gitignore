@@ -13,3 +13,4 @@ workflows
 *PRIVATE*
 my*
 orig
+*.log

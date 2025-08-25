@@ -35,7 +35,7 @@
 : ${MEMBER_PREFIX:=mem} # recommended are either empty or "mem" 
 
 # assimilation settings
-: ${ASSIMROOT:=$SETUPROOT/../../assim/enkf_noresm2_oda}
+: ${ASSIMROOT:=$SETUPROOT/../../assim/enkf_noresm2_oda5}
 : ${MEAN_MOD_DIR:=$INPUTDATA_ASSIM/enkf/$RES/NorESM2-LM-CMIP6}
 : ${NTASKS_DA:=128}
 : ${NTASKS_ENKF:=108}
