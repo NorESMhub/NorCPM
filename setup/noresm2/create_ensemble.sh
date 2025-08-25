@@ -26,10 +26,12 @@ do
  
   echo ++ PICK REFERENCE DATE
   : ${REF_DATE:=$START_DATE} # set REF_DATE to START_DATE if REF_DATE nor REF_DATE_LIST set  
-  if [[ $REF_DATE_LIST ]]
+  if [[ -n $REF_DATE_LIST ]]
   then
+    echo REF_DATE_LIST exists. I will use it  
     NREF=`echo $REF_DATE_LIST | wc -w` 
-    REF_DATE=`echo $REF_DATE_LIST | cut -d' ' -f$(( ( ( $((10#$MEMBER-10#$MEMBER1+1)) - 1 ) % $NREF ) + 1 ))`
+    #REF_DATE=`echo $REF_DATE_LIST | cut -d' ' -f$(( ( ( $((10#$MEMBER-10#$MEMBER1+1)) - 1 ) % $NREF ) + 1 ))` # first date corresponds to member $MEMBER1
+    REF_DATE=`echo $REF_DATE_LIST | cut -d' ' -f$(( ( ( $((10#$MEMBER)) - 1 ) % $NREF ) + 1 ))` # first date always corresponds to member 1
   fi 
   echo +++ Reference date for member $MEMBER set to: $REF_DATE
   #
@@ -80,7 +82,8 @@ do
   if [[ $REF_CASE_LIST ]]
   then
     NREF=`echo $REF_CASE_LIST | wc -w` 
-    REF_CASE=`echo $REF_CASE_LIST | cut -d' ' -f$(( ( ( $((10#$MEMBER-10#$MEMBER1+1)) - 1 ) % $NREF ) + 1 ))`
+    #REF_CASE=`echo $REF_CASE_LIST | cut -d' ' -f$(( ( ( $((10#$MEMBER-10#$MEMBER1+1)) - 1 ) % $NREF ) + 1 ))` #  first date corresponds to member $MEMBER1
+    REF_CASE=`echo $REF_CASE_LIST | cut -d' ' -f$(( ( ( $((10#$MEMBER)) - 1 ) % $NREF ) + 1 ))` # first date always corresponds to member 1
   fi
   if [ $REF_CASE_SUFFIX_MEMBER1 ]
   then 
@@ -143,6 +146,7 @@ do
     fi 
 
     echo +++ CONFIGURE MEMBER 1 CASE 
+    [ -e $USER_MODS_DIR/Macros.make ] && cp -f $USER_MODS_DIR/Macros.make . 
     [ -e $USER_MODS_DIR/env_mach_pes.xml ] && cp -f $USER_MODS_DIR/env_mach_pes.xml . 
     [ -e $USER_MODS_DIR/env_mach_specific.xml ] && cp -f $USER_MODS_DIR/env_mach_specific.xml . 
     ./case.setup

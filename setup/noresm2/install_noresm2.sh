@@ -25,4 +25,9 @@ git clone -b release-noresm2.0.8 --single-branch https://github.com/NorESMhub/No
 cd noresm2
 
 ./manage_externals/checkout_externals 
+
+echo + PERFORMING POST-INSTALL MODIFICATIONS 
+sed -i 's/\[dmy\]/\[hdmy\]/g' components/blom/cime_config/config_archive.xml 
+sed -i 's/\[dmy\]/\[hdmy\]/g' cime/config/cesm/config_archive.xml
+
 echo + INSTALL COMPLETED
