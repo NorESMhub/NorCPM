@@ -29,5 +29,6 @@ cd noresm2
 echo + PERFORMING POST-INSTALL MODIFICATIONS 
 sed -i 's/\[dmy\]/\[hdmy\]/g' components/blom/cime_config/config_archive.xml 
 sed -i 's/\[dmy\]/\[hdmy\]/g' cime/config/cesm/config_archive.xml
+find ../../setup/noresm2/user_mods -name "*patch.input*" -exec cp -v {} components/blom/bld/tnx1v4/ \;
 
 echo + INSTALL COMPLETED
