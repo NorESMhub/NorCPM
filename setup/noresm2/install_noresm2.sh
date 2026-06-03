@@ -20,7 +20,8 @@ echo
 
 cd $SETUPROOT/../../model 
 
-git clone -b release-noresm2.0.8 --single-branch https://github.com/NorESMhub/NorESM.git noresm2
+curl -L https://github.com/NorESMhub/NorESM/archive/refs/tags/release-noresm2.0.9.tar.gz | tar -xz
+mv NorESM-release-noresm2.0.9 noresm2
 
 cd noresm2
 

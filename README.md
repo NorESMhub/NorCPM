@@ -341,3 +341,7 @@ Assimilation settings
     COMBINE_ASSIM     : sequence that controls sequential vs combined
                       : assimilation, always '0 0 1' for NorCPM1
 
+Low-Pass Nudging
+    Nudge_LPF_nday    : N-day of assumed running average window
+    Nudge_LPF_Coef    : Nudging coefficient, use 1.0
+                      : Please check user_nl_cam for nudging options
