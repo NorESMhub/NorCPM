@@ -19,7 +19,7 @@ diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/cime/config/cesm/mach
 +    <!-- default job type, meant for CPU-only jobs needing less than a whole node (< 256 CPUs) -->
 +    <directives queue = "small">
 +      <directive> --partition=small</directive>
-+      <directive> --mem-per-cpu=2G</directive>
++      <directive> --mem-per-cpu=2560M</directive>
 +    </directives>
 +    <!-- meant for larger CPU-only jobs, needing at least one node (> 256 CPUs) -->
 +    <directives queue = "large">
@@ -29,7 +29,7 @@ diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/cime/config/cesm/mach
 +    <directives queue = "devel">
 +      <directive> --partition=small</directive>
 +      <directive> --qos=devel</directive>
-+      <directive> --mem-per-cpu=2G</directive>
++      <directive> --mem-per-cpu=2560M</directive>
 +    </directives>
 +      <queues>
 +        <queue walltimemax="144:00:00" nodemin="1" nodemax="1" default="true">small</queue>
@@ -44,7 +44,7 @@ diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/cime/config/cesm/mach
 diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/cime/config/cesm/machines/config_compilers.xml NorESM-release-noresm2.0.9/cime/config/cesm/machines/config_compilers.xml
 --- orig/NorESM-release-noresm2.0.9/cime/config/cesm/machines/config_compilers.xml	2026-06-17 10:18:11.000000000 +0200
 +++ NorESM-release-noresm2.0.9/cime/config/cesm/machines/config_compilers.xml	2026-06-09 12:35:54.000000000 +0200
-@@ -1244,6 +1244,31 @@
+@@ -1244,6 +1244,32 @@
    </SLIBS>
  </compiler>
  
@@ -63,10 +63,11 @@ diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/cime/config/cesm/mach
 +    <append DEBUG="FALSE"> -O2 </append>
 +    <append MODEL="blom"> -r8 </append>
 +    <append MODEL="cice"> -init=zero,arrays </append>
++    <append MODEL="cam"> -init=zero,arrays -fpe0 </append> <!-- avoid CAM crashed in specific PEs, need both-->
 +  </FFLAGS>
 +  <MPICC> mpiicx </MPICC>
 +  <MPICXX> mpicpc </MPICXX>
-+  <MPIFC> mpiifort </MPIFC>
++  <MPIFC> mpiifx </MPIFC>
 +  <PIO_FILESYSTEM_HINTS>lustre</PIO_FILESYSTEM_HINTS>
 +  <SLIBS>
 +    <append>-mkl=sequential -lnetcdff -lnetcdf</append>

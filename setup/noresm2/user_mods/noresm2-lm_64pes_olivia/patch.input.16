@@ -1,0 +1,14 @@
+  npes   npe   mpe   idm   jdm  ibig  jbig  nreg  minsea  maxsea  avesea
+    16     4     4   360   385    90    97     2    2232    8725    5658
+
+ispt(  1) =      1    91   181   271
+iipe(  1) =     90    90    90    90
+ispt(  2) =      1    91   181   271
+iipe(  2) =     90    90    90    90
+ispt(  3) =      1    91   181   271
+iipe(  3) =     90    90    90    90
+ispt(  4) =      1    91   181   271
+iipe(  4) =     90    90    90    90
+
+jspt(  1) =      1    97   194   290
+jjpe(  1) =     96    97    96    96
