@@ -109,10 +109,10 @@ diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/cime/config/cesm/mach
 +    <MAX_MPITASKS_PER_NODE>256</MAX_MPITASKS_PER_NODE>
 +    <PROJECT_REQUIRED>TRUE</PROJECT_REQUIRED>
 +    <mpirun mpilib="openmpi">
-+      <executable>srun --mpi=pmix --label</executable>
++      <executable>srun --mpi=pmix --label --kill-on-bad-exit</executable>
 +    </mpirun>
 +    <mpirun mpilib="oneapi">
-+      <executable>srun --label</executable>
++      <executable>srun --label --kill-on-bad-exit</executable>
 +    </mpirun>
 +    <module_system type="module" allow_error="true">
 +      <init_path lang="perl">/opt/cray/pe/lmod/lmod/init/perl</init_path>
