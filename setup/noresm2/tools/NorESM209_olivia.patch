@@ -53,7 +53,7 @@ diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/cime/config/cesm/mach
 +   <append> -D$(OS) </append>
 +  </CPPDEFS>
 +  <FFLAGS>
-+   <append> -xavx2 -no-fma </append>
++   <append> -march=core-avx2 -mtune=core-avx2 -no-fma </append>
 +  </FFLAGS>
 +  <NETCDF_PATH>$(EBROOTNETCDFMINFORTRAN)</NETCDF_PATH>
 +  <PNETCDF_PATH>$(EBROOTPNETCDF)</PNETCDF_PATH>
@@ -171,39 +171,24 @@ diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/cime/config/cesm/mach
    <machine MACH="nebula">
      <DESC>Intel Skylake 6130 32 core nodes 96G RAM OPA network</DESC>
      <OS>LINUX</OS>
-diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/cime/config/cesm/machines/Depends.olivia NorESM-release-noresm2.0.9/cime/config/cesm/machines/Depends.olivia
---- orig/NorESM-release-noresm2.0.9/cime/config/cesm/machines/Depends.olivia	1970-01-01 01:00:00.000000000 +0100
-+++ NorESM-release-noresm2.0.9/cime/config/cesm/machines/Depends.olivia	2026-05-15 14:02:39.000000000 +0200
-@@ -0,0 +1,9 @@
-+#
-+#betzy related optimization
-+CCSM_DRIVER_OBJS=\
-+cime_driver.o
-+
-+ifeq ($(DEBUG),FALSE)
-+  $(CCSM_DRIVER_OBJS): %.o: %.F90
-+	  $(FC) -c $(INCLDIR) $(INCS) -qno-opt-dynamic-align  -convert big_endian -assume byterecl -ftz -traceback -assume realloc_lhs -fp-model source -O2 $(SLIBS) $(CPPDEFS) -free  -DUSE_CONTIGUOUS= $<
-+endif
 diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/cime/scripts/lib/CIME/utils.py NorESM-release-noresm2.0.9/cime/scripts/lib/CIME/utils.py
 --- orig/NorESM-release-noresm2.0.9/cime/scripts/lib/CIME/utils.py	2026-06-17 10:18:12.000000000 +0200
 +++ NorESM-release-noresm2.0.9/cime/scripts/lib/CIME/utils.py	2026-06-09 11:17:06.000000000 +0200
-@@ -2,7 +2,9 @@
+@@ -2,7 +2,8 @@
  Common functions used by cime python scripts
  Warning: you cannot use CIME Classes in this module as it causes circular dependencies
  """
 -import io, logging, gzip, sys, os, time, re, shutil, glob, string, random, imp, fnmatch
-+##imp is deprecated##import io, logging, gzip, sys, os, time, re, shutil, glob, string, random, imp, fnmatch
 +import io, logging, gzip, sys, os, time, re, shutil, glob, string, random, fnmatch
 +import importlib as imp
  import errno, signal, warnings, filecmp
  import stat as statlib
  import six
-@@ -187,7 +189,8 @@
+@@ -187,7 +189,7 @@
  
      cime_config_file = os.path.abspath(os.path.join(os.path.expanduser("~"),
                                                    ".cime","config"))
 -    cime_config = configparser.SafeConfigParser()
-+    ##cime_config = configparser.SafeConfigParser()
 +    cime_config = configparser.ConfigParser()
      if(os.path.isfile(cime_config_file)):
          cime_config.read(cime_config_file)
@@ -277,12 +262,11 @@ diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/components/blom/cime_
  
  _CIMEROOT = os.environ.get("CIMEROOT")
  if _CIMEROOT is None:
-@@ -32,7 +32,8 @@
+@@ -32,7 +32,7 @@
          cmd = os.path.join(os.path.join(comp_root_dir_ocn, "cime_config", "buildcpp"))
          logger.info("     ...calling blom buildcpp to set build time options")
          try:
 -            mod = imp.load_source("buildcpp", cmd)
-+            #mod = imp.load_source("buildcpp", cmd)
 +            mod = importlib.machinery.SourceFileLoader("buildcpp", cmd).load_module()
              blom_cppdefs = mod.buildcpp(case)
          except:
@@ -299,36 +283,32 @@ diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/components/cam/cime_c
  
  _CIMEROOT = os.environ.get("CIMEROOT")
  if _CIMEROOT is None:
-@@ -43,7 +43,9 @@
+@@ -43,7 +43,7 @@
                                          "cime_config", "buildcpp"))
          logger.info("     ...calling cam buildcpp to set build time options")
          try:
 -            mod = imp.load_source("buildcpp", cmd)
-+            #mod = imp.load_source("buildcpp", cmd)
 +            mod = importlib.machinery.SourceFileLoader("buildcpp", cmd).load_module()
-+
              cam_cppdefs = mod.buildcpp(case)
          except:
              raise
 diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/components/cam/cime_config/buildnml NorESM-release-noresm2.0.9/components/cam/cime_config/buildnml
 --- orig/NorESM-release-noresm2.0.9/components/cam/cime_config/buildnml	2026-06-17 10:17:55.000000000 +0200
 +++ NorESM-release-noresm2.0.9/components/cam/cime_config/buildnml	2026-06-09 11:32:12.000000000 +0200
-@@ -4,7 +4,8 @@
+@@ -4,7 +4,7 @@
  CAM namelist creator
  """
  # pylint: disable=multiple-imports
 -import sys, os, shutil, filecmp, imp
-+##import sys, os, shutil, filecmp, imp
 +import sys, os, shutil, filecmp, importlib
  
  _CIMEROOT = os.environ.get("CIMEROOT")
  if _CIMEROOT is None:
-@@ -60,7 +61,8 @@
+@@ -60,7 +61,7 @@
          cmd = os.path.join(os.path.join(srcroot,"components","cam","cime_config","buildcpp"))
          logger.info("     ...calling cam buildcpp to set build time options")
          try:
 -            mod = imp.load_source("buildcpp", cmd)
-+            #mod = imp.load_source("buildcpp", cmd)
 +            mod = importlib.machinery.SourceFileLoader("buildcpp", cmd).load_module()
              mod.buildcpp(case)
          except:
@@ -344,14 +324,12 @@ diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/components/cice/cime_
  
  CIMEROOT = os.environ.get("CIMEROOT")
  if CIMEROOT is None:
-@@ -30,7 +30,9 @@
+@@ -30,7 +30,7 @@
          cmd = os.path.join(os.path.join(srcroot,"components","cice","cime_config","buildcpp"))
          logger.info("     ...calling cice buildcpp to set build time options")
          try:
 -            mod = imp.load_source("buildcpp", cmd)
-+            #mod = imp.load_source("buildcpp", cmd)
 +            mod = importlib.machinery.SourceFileLoader("buildcpp", cmd).load_module()
-+
              cice_cppdefs = mod.buildcpp(case)
          except:
              raise
@@ -367,12 +345,11 @@ diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/components/cice/cime_
  
  CIMEROOT = os.environ.get("CIMEROOT")
  if CIMEROOT is None:
-@@ -195,7 +195,8 @@
+@@ -195,7 +195,7 @@
          cmd = os.path.join(os.path.join(srcroot,"components","cice","cime_config","buildcpp"))
          logger.info("     ...calling cice buildcpp to set build time options")
          try:
 -            mod = imp.load_source("buildcpp", cmd)
-+            #mod = imp.load_source("buildcpp", cmd)
 +            mod = importlib.machinery.SourceFileLoader("buildcpp", cmd).load_module()
              mod.buildcpp(case)
          except:
@@ -389,12 +366,11 @@ diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/components/clm/cime_c
  
  _CIMEROOT = os.environ.get("CIMEROOT")
  if _CIMEROOT is None:
-@@ -51,7 +51,8 @@
+@@ -51,7 +51,7 @@
              cmd = os.path.join(os.path.join(lnd_root,"cime_config","buildcpp"))
              logger.info("     ...calling clm buildcpp to set build time options")
              try:
 -                mod = imp.load_source("buildcpp", cmd)
-+                #mod = imp.load_source("buildcpp", cmd)
 +                mod = importlib.machinery.SourceFileLoader("buildcpp", cmd).load_module()
                  clm_cppdefs = mod.buildcpp(case)
              except:
@@ -402,24 +378,32 @@ diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/components/clm/cime_c
 diff -Nur '--exclude=.git' orig/NorESM-release-noresm2.0.9/components/clm/cime_config/buildnml NorESM-release-noresm2.0.9/components/clm/cime_config/buildnml
 --- orig/NorESM-release-noresm2.0.9/components/clm/cime_config/buildnml	2026-06-17 10:18:27.000000000 +0200
 +++ NorESM-release-noresm2.0.9/components/clm/cime_config/buildnml	2026-06-09 11:33:52.000000000 +0200
-@@ -3,7 +3,8 @@
+@@ -3,7 +3,7 @@
  """
  CLM namelist creator
  """
 -import sys, os, shutil, imp, filecmp
-+#import sys, os, shutil, imp, filecmp
 +import sys, os, shutil, importlib, filecmp
  
  _CIMEROOT = os.environ.get("CIMEROOT")
  if _CIMEROOT is None:
-@@ -101,7 +102,9 @@
+@@ -101,7 +102,7 @@
              cmd = os.path.join(os.path.join(lnd_root,"cime_config","buildcpp"))
              logger.info("     ...calling clm buildcpp to set build time options")
              try:
 -                mod = imp.load_source("buildcpp", cmd)
-+                #mod = imp.load_source("buildcpp", cmd)
 +                mod = importlib.machinery.SourceFileLoader("buildcpp", cmd).load_module()
-+
                  mod.buildcpp(case)
              except:
                  raise
+--- orig/NorESM-release-noresm2.0.9/cime/src/externals/mct/configure    2026-11-02 15:18:06.000000000 +0100
++++ NorESM-release-noresm2.0.9/cime/src/externals/mct/configure 2026-11-03 10:19:47.000000000 +0100
+@@ -4573,6 +4573,7 @@
+ fi # test "x$[]_AC_LANG_PREFIX[]LIBS" = "x"
+ 
+ fi
++ac_cv_fc_libs=$(echo $ac_cv_fc_libs|sed -e's/-loopopt=1//')
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_fc_libs" >&5
+ $as_echo "$ac_cv_fc_libs" >&6; }
+ FCLIBS="$ac_cv_fc_libs"
+
