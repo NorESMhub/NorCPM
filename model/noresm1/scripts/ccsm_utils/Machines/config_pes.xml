@@ -823,7 +823,7 @@
     <PES_LEVEL>3rcm</PES_LEVEL>
 </pes>
 
-<pes grid_match="1.9x2.5_gx1" compset_match="N" mach_match="hexagon|vilje|fram|betzy" pecount="T">
+<pes grid_match="1.9x2.5_gx1" compset_match="N" mach_match="hexagon|vilje|fram|betzy|olivia" pecount="T">
     <NTASKS_ATM> 32</NTASKS_ATM> <NTHRDS_ATM>1</NTHRDS_ATM> <ROOTPE_ATM>  0</ROOTPE_ATM>
     <NTASKS_LND>  8</NTASKS_LND> <NTHRDS_LND>1</NTHRDS_LND> <ROOTPE_LND> 24</ROOTPE_LND>
     <NTASKS_ICE> 24</NTASKS_ICE> <NTHRDS_ICE>1</NTHRDS_ICE> <ROOTPE_ICE>  0</ROOTPE_ICE>
@@ -833,7 +833,7 @@
     <PES_LEVEL>3rcm</PES_LEVEL>
 </pes>
 
-<pes grid_match="0.9x1.25_gx1" compset_match="N" mach_match="hexagon|vilje|fram|betzy" pecount="T">
+<pes grid_match="0.9x1.25_gx1" compset_match="N" mach_match="hexagon|vilje|fram|betzy|olivia" pecount="T">
     <NTASKS_ATM> 32</NTASKS_ATM> <NTHRDS_ATM>1</NTHRDS_ATM> <ROOTPE_ATM>  0</ROOTPE_ATM>
     <NTASKS_LND> 12</NTASKS_LND> <NTHRDS_LND>1</NTHRDS_LND> <ROOTPE_LND> 20</ROOTPE_LND>
     <NTASKS_ICE> 20</NTASKS_ICE> <NTHRDS_ICE>1</NTHRDS_ICE> <ROOTPE_ICE>  0</ROOTPE_ICE>
@@ -843,7 +843,7 @@
     <PES_LEVEL>3rcm</PES_LEVEL>
 </pes>
 
-<pes grid_match="1.9x2.5_gx1" compset_match="N1850AERCNCMIP6|N20TREXTAERCNCMIP6" mach_match="hexagon|vilje|fram|betzy" pecount="S">
+<pes grid_match="1.9x2.5_gx1" compset_match="N1850AERCNCMIP6|N20TREXTAERCNCMIP6" mach_match="hexagon|vilje|fram|betzy|olivia" pecount="S">
     <NTASKS_ATM> 32</NTASKS_ATM> <NTHRDS_ATM>1</NTHRDS_ATM> <ROOTPE_ATM>  0</ROOTPE_ATM>
     <NTASKS_LND> 11</NTASKS_LND> <NTHRDS_LND>1</NTHRDS_LND> <ROOTPE_LND> 32</ROOTPE_LND>
     <NTASKS_ICE> 32</NTASKS_ICE> <NTHRDS_ICE>1</NTHRDS_ICE> <ROOTPE_ICE>  0</ROOTPE_ICE>
@@ -853,7 +853,7 @@
     <PES_LEVEL>3rcm</PES_LEVEL>
 </pes>
 
-<pes grid_match="1.9x2.5_gx1" compset_match="N1850AERCNOCCMIP6|N20TREXTAERCNOCCMIP6" mach_match="hexagon|vilje|fram|betzy" pecount="S">
+<pes grid_match="1.9x2.5_gx1" compset_match="N1850AERCNOCCMIP6|N20TREXTAERCNOCCMIP6" mach_match="hexagon|vilje|fram|betzy|olivia" pecount="S">
     <NTASKS_ATM> 32</NTASKS_ATM> <NTHRDS_ATM>1</NTHRDS_ATM> <ROOTPE_ATM>  0</ROOTPE_ATM>
     <NTASKS_LND>  8</NTASKS_LND> <NTHRDS_LND>1</NTHRDS_LND> <ROOTPE_LND> 24</ROOTPE_LND>
     <NTASKS_ICE> 24</NTASKS_ICE> <NTHRDS_ICE>1</NTHRDS_ICE> <ROOTPE_ICE>  0</ROOTPE_ICE>
@@ -907,7 +907,7 @@
     <PES_LEVEL>3rcm</PES_LEVEL>
 </pes>
 
-<pes grid_match="1.9x2.5_gx1" compset_match="N1850AERCNCMIP6|N20TREXTAERCNCMIP6" mach_match="betzy" pecount="M|L">
+<pes grid_match="1.9x2.5_gx1" compset_match="N1850AERCNCMIP6|N20TREXTAERCNCMIP6" mach_match="betzy|olivia" pecount="M|L">
     <NTASKS_ATM> 80</NTASKS_ATM> <NTHRDS_ATM>1</NTHRDS_ATM> <ROOTPE_ATM>  0</ROOTPE_ATM>
     <NTASKS_LND> 16</NTASKS_LND> <NTHRDS_LND>1</NTHRDS_LND> <ROOTPE_LND> 64</ROOTPE_LND>
     <NTASKS_ICE> 64</NTASKS_ICE> <NTHRDS_ICE>1</NTHRDS_ICE> <ROOTPE_ICE>  0</ROOTPE_ICE>
@@ -917,7 +917,7 @@
     <PES_LEVEL>3rcm</PES_LEVEL>
 </pes>
 
-<pes grid_match="1.9x2.5_gx1" compset_match="N1850AERCNOCCMIP6|N20TREXTAERCNOCCMIP6" mach_match="betzy" pecount="M|L">
+<pes grid_match="1.9x2.5_gx1" compset_match="N1850AERCNOCCMIP6|N20TREXTAERCNOCCMIP6" mach_match="betzy|olivia" pecount="M|L">
     <NTASKS_ATM> 64</NTASKS_ATM> <NTHRDS_ATM>1</NTHRDS_ATM> <ROOTPE_ATM>  0</ROOTPE_ATM>
     <NTASKS_LND> 14</NTASKS_LND> <NTHRDS_LND>1</NTHRDS_LND> <ROOTPE_LND> 50</ROOTPE_LND>
     <NTASKS_ICE> 50</NTASKS_ICE> <NTHRDS_ICE>1</NTHRDS_ICE> <ROOTPE_ICE>  0</ROOTPE_ICE>
@@ -1000,7 +1000,7 @@
 </pes>
 
 
-<pes grid_match="1.9x2.5_gx1" compset_match="N|N2000AERCNOC|N1850AEROC|N1850AERCNOC|N1850AERBPRP|N20TREXTAERCNOCCMIP6" mach_match="betzy" pecount="X1">
+<pes grid_match="1.9x2.5_gx1" compset_match="N|N2000AERCNOC|N1850AEROC|N1850AERCNOC|N1850AERBPRP|N20TREXTAERCNOCCMIP6" mach_match="betzy|olivia" pecount="X1">
     <NTASKS_ATM>192</NTASKS_ATM> <NTHRDS_ATM>1</NTHRDS_ATM> <ROOTPE_ATM>  0</ROOTPE_ATM>
     <NTASKS_LND> 32</NTASKS_LND> <NTHRDS_LND>1</NTHRDS_LND> <ROOTPE_LND>  0</ROOTPE_LND>
     <NTASKS_ICE>160</NTASKS_ICE> <NTHRDS_ICE>1</NTHRDS_ICE> <ROOTPE_ICE> 32</ROOTPE_ICE>
@@ -1010,7 +1010,7 @@
     <PES_LEVEL>3rcm</PES_LEVEL>
 </pes>
 
-<pes grid_match="1.9x2.5_gx1" compset_match="N" mach_match="hexagon|vilje|fram|betzy" pecount="X2">
+<pes grid_match="1.9x2.5_gx1" compset_match="N" mach_match="hexagon|vilje|fram|betzy|olivia" pecount="X2">
     <NTASKS_ATM>288</NTASKS_ATM> <NTHRDS_ATM>1</NTHRDS_ATM> <ROOTPE_ATM>  0</ROOTPE_ATM>
     <NTASKS_LND> 74</NTASKS_LND> <NTHRDS_LND>1</NTHRDS_LND> <ROOTPE_LND>214</ROOTPE_LND>
     <NTASKS_ICE>214</NTASKS_ICE> <NTHRDS_ICE>1</NTHRDS_ICE> <ROOTPE_ICE>  0</ROOTPE_ICE>
@@ -1030,7 +1030,7 @@
     <PES_LEVEL>3rcm</PES_LEVEL>
 </pes>
 
-<pes grid_match="1.9x2.5_gx1" compset_match="N1850AERCNOCCMIP6" mach_match="betzy" pecount="X2">
+<pes grid_match="1.9x2.5_gx1" compset_match="N1850AERCNOCCMIP6" mach_match="betzy|olivia" pecount="X2">
     <NTASKS_ATM>288</NTASKS_ATM> <NTHRDS_ATM>1</NTHRDS_ATM> <ROOTPE_ATM>  0</ROOTPE_ATM>
     <NTASKS_LND> 74</NTASKS_LND> <NTHRDS_LND>1</NTHRDS_LND> <ROOTPE_LND>214</ROOTPE_LND>
     <NTASKS_ICE>214</NTASKS_ICE> <NTHRDS_ICE>1</NTHRDS_ICE> <ROOTPE_ICE>  0</ROOTPE_ICE>

@@ -654,6 +654,27 @@
          MAX_TASKS_PER_NODE="128"
          MPISERIAL_SUPPORT="FALSE" />
 
+<machine MACH="olivia"
+         DESC="Sigma2, LMD, 128 pes/node, batch system is SLURM"
+         EXEROOT="/cluster/work/users/$CCSMUSER/noresm/$CASE"
+         OBJROOT="$EXEROOT"
+         INCROOT="$EXEROOT/lib/include" 
+         LOGDIR="/cluster/work/users/$CCSMUSER/archive/logs"
+         DIN_LOC_ROOT_CSMDATA="/cluster/projects/nn9039k/inputdata"
+         DIN_LOC_ROOT_CLMQIAN="UNSET"
+         DOUT_S_ROOT="/cluster/work/users/$CCSMUSER/archive/$CASE"
+         DOUT_L_HTAR="FALSE"
+         DOUT_L_MSROOT="UNSET"
+         DOUT_L_MSHOST="UNSET"
+         CCSM_BASELINE="UNSET"
+         CCSM_CPRNC="UNSET"
+         OS="Linux"
+         BATCHQUERY="UNSET"
+         BATCHSUBMIT="sbatch" 
+         GMAKE_J="8" 
+         MAX_TASKS_PER_NODE="128"
+         MPISERIAL_SUPPORT="FALSE" />
+
 <machine MACH="vilje"
          DESC="NTNU, Trondheim, 16 pes/node, batch system is PBS"
          EXEROOT="/work/$CCSMUSER/noresm/$CASE"

@@ -150,6 +150,7 @@ do
     [ -e $USER_MODS_DIR/env_build.xml ] && cp -f $USER_MODS_DIR/env_build.xml . 
     [ -e $USER_MODS_DIR/env_mach_pes.xml ] && cp -f $USER_MODS_DIR/env_mach_pes.xml . 
     [ -e $USER_MODS_DIR/env_mach_specific.xml ] && cp -f $USER_MODS_DIR/env_mach_specific.xml . 
+
     ./case.setup
     # ------------------------------------------------------------------
     # Append daily soil moisture variables to user_nl_clm
@@ -228,8 +229,8 @@ EOF
     # ------------------------------------------------------------------
     ./preview_namelists
 
-    echo +++ DUMMY BUILD
-    ./case.build
+    #echo +++ DUMMY BUILD
+    #./case.build
 
   fi 
   echo ++ FINISHED PREPARING CASE

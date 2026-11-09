@@ -25,9 +25,13 @@ mv NorESM-release-noresm2.0.9 noresm2
 
 cd noresm2
 
+sed -i -e'1s/python/python3/' ./manage_externals/checkout_externals 
 ./manage_externals/checkout_externals 
 
 echo + PERFORMING POST-INSTALL MODIFICATIONS 
+## for NorESM 2.0.9 on Olivia
+patch  -p1 < ../../setup/noresm2/tools/NorESM209_olivia.patch
+
 sed -i 's/\[dmy\]/\[hdmy\]/g' components/blom/cime_config/config_archive.xml 
 sed -i 's/\[dmy\]/\[hdmy\]/g' cime/config/cesm/config_archive.xml
 find ../../setup/noresm2/user_mods -name "*patch.input*" -exec cp -v {} components/blom/bld/tnx1v4/ \;
