@@ -2,11 +2,11 @@
 # USE VARNAME=VALUE ARGUMENT WHEN CALLING SCRIPT TO OVERRIDE DEFAULTS 
 
 # experiment settings
-: ${EXPERIMENT:=noresm2-lm_oda} # case prefix, not including _YYYYMMDD_memXX suffix 
+: ${EXPERIMENT:=noresm2-lm_oLand} # case prefix, not including _YYYYMMDD_memXX suffix 
 : ${MEMBER1:=1} # first member  
 : ${ENSSIZE:=30} # number of members 
 : ${COMPSET:=NHISTfrc2}
-: ${USER_MODS_DIR:=$SETUPROOT/user_mods/noresm2-lm_128pes}   
+: ${USER_MODS_DIR:=$SETUPROOT/user_mods/noresm2-lm_olda_128pes}   
 : ${RES:=f19_tn14}
 : ${START_DATE:=1982-01-01} # YYYY-MM-DD 
 : ${OUTPUT_DAILY_SOILMOIST:=true}
@@ -21,9 +21,9 @@
 # job settings
 : ${STOP_OPTION:=nyears} # units for run length specification STOP_N 
 : ${STOP_N:=1} # run continuesly for this length 
-: ${RESTART:=2} # restart this many times  
+: ${RESTART:=0} # restart this many times  
 : ${WALLTIME:='96:00:00'}
-: ${ACCOUNT:=nn9873k}
+: ${ACCOUNT:=nn11071k}
 : ${MAX_PARALLEL_STARCHIVE:=10}
 
 # general settings 
@@ -36,7 +36,7 @@
 : ${MEMBER_PREFIX:=mem} # recommended are either empty or "mem" 
 
 # assimilation settings
-: ${ASSIMROOT:=$SETUPROOT/../../assim/enkf_noresm2_oda}
+: ${ASSIMROOT:=$SETUPROOT/../../assim/enkf_noresm2_olda}
 : ${MEAN_MOD_DIR:=$INPUTDATA_ASSIM/enkf/$RES/NorESM2-LM-CMIP6}
 : ${NTASKS_DA:=128}
 : ${NTASKS_ENKF:=108}

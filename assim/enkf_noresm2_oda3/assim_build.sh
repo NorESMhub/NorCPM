@@ -26,3 +26,14 @@ make
 echo + create empty file BLOM_DA to activate assimilation in BLOM 
 cd $ANALYSISROOT
 touch BLOM_DA
+
+echo +  Link SM obs 
+ln -sf /cluster/shared/noresm/norcpm/Obs/SM $ANALYSISROOT/INPUT_SM
+
+
+echo + create empty file CLM_DA to activate assimilation in CLM
+cd $ANALYSISROOT
+touch CLM_DA
+cp -f $ASSIMROOT/clm5_da.py .
+cp -f $ASSIMROOT/clmda.sh .
+
