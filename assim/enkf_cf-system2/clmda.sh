@@ -1,4 +1,5 @@
 #! /bin/sh -e
+test -z "$(which cdo)" && source /cluster/projects/nn9039k/people/pgchiu/conda/py3env.sh
 rdate=$1
 echo $rdate
 today=$(date -d "$rdate" +%d)
@@ -17,8 +18,8 @@ do
 
 done
 
-
-./SM_DAstandaloneApplication/run_SM_DA.sh /cluster/software/MATLAB/2022b/ ${rdate} ${enssize} ${infl_fac}
+python run_SM_DA.py ${rdate} ${enssize} ${infl_fac}
+#./SM_DAstandaloneApplication/run_SM_DA.sh /cluster/software/MATLAB/2022b/ ${rdate} ${enssize} ${infl_fac}
 
 while ! test -f "./Innovation-${rdate}.nc"; do
        sleep .5

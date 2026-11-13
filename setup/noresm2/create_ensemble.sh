@@ -152,6 +152,17 @@ do
     [ -e $USER_MODS_DIR/env_mach_specific.xml ] && cp -f $USER_MODS_DIR/env_mach_specific.xml . 
 
     ./case.setup
+    # ------------------------------------------------------------------
+    # Append daily soil moisture variables to user_nl_clm
+    # ------------------------------------------------------------------
+    echo "--> Enabling daily soil moisture output in user_nl_clm..."
+    cat << 'EOF' >> "${CASEROOT}/user_nl_clm"
+hist_nhtfrq(2) = -24
+hist_mfilt(2)  = 31
+hist_fincl2    = 'SOILLIQ', 'SOILICE', 'H2OSOI', 'SOILWATER_10CM'
+EOF
+    
+    # ------------------------------------------------------------------
     ./preview_namelists
 
     echo +++ COPY SOURCE MODS REQUIRED FOR ASSIMILATION IF ANY  
@@ -205,6 +216,17 @@ do
     [ -e $USER_MODS_DIR/env_mach_pes.xml ] && cp -f $USER_MODS_DIR/env_mach_pes.xml . 
     [ -e $USER_MODS_DIR/env_mach_specific.xml ] && cp -f $USER_MODS_DIR/env_mach_specific.xml . 
     ./case.setup
+    # ------------------------------------------------------------------
+    # Append daily soil moisture variables to user_nl_clm
+    # ------------------------------------------------------------------
+    echo "--> Enabling daily soil moisture output in user_nl_clm..."
+    cat << 'EOF' >> "${CASEROOT}/user_nl_clm"
+hist_nhtfrq(2) = -24
+hist_mfilt(2)  = 31
+hist_fincl2    = 'SOILLIQ', 'SOILICE', 'H2OSOI', 'SOILWATER_10CM'
+EOF
+        
+    # ------------------------------------------------------------------
     ./preview_namelists
 
     #echo +++ DUMMY BUILD

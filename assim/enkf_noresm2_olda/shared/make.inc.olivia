@@ -1,0 +1,43 @@
+LIB_NETCDF= -L/local/netcdf/lib/ -lnetcdf -lnetcdff
+LIB_LAPACK =
+
+INCS = $(INC_NETCDF) $(INC_FFTW)
+LIBS = -qmkl=cluster $(LIB_LAPACK) $(LIB_NETCDF) $(LIB_FFTW)
+
+ifeq ($(MPI),YES)
+        CF90 = mpiifx
+        CC = mpiicx
+	PARO =
+	CPPFLAGS = -DQMPI 
+else
+	CF90 = ifort
+	CC = icc
+	PAR0 = 
+endif
+CF77 = $(CF90)
+LD = $(CF90) 
+CPP = cpp -P -traditional-cpp
+
+CPPARCH = -DIA32 -DFFTW -DNOMPIR8
+CPPFLAGS += $(CPPARCH) -DF90_NOFLUSH
+
+SIZEO = -r8
+
+OPTO_NOAVX2 = -O2 -align -fp-model source  
+OPTO = -O2 -align -fp-model source #-fast -fastsse
+ARCHO= -mcmodel=medium
+INLO = -flto ## -ip for ifort, -flto for ifx
+DIVO = 
+DEBUG_FLAGS = 
+
+FFLAGS = $(SIZEO) $(OPTO) $(ARCHO) $(PARO) $(INLO) $(DIVO) $(DEBUG_FLAGS) $(INCS)
+#CFLAGS = $(FFLAGS)
+CFLAGS = -DINTEL_COMPILER
+LINKFLAGS = $(SIZEO) $(OPTO) $(ARCHO) $(PARO) $(INLO) $(DIVO) $(DEBUG_FLAGS) 
+## compatible to makefile
+CFLAGS_NOAVX2 = $(CFLAGS)
+FFLAGS_NOAVX2 = $(FFLAGS)
+
+# language-specific flags
+F77FLG = -fixed
+F90FLG = -free
